@@ -13,7 +13,7 @@ function formatCurrency(value: number | string) {
   );
 }
 
-const COLORS = ["#E30A17", "#1AB2B3", "#FF4C5B", "#F59E0B", "#8B5CF6", "#10B981", "#3B82F6"];
+const COLORS = ["#1ABC9C", "#16a085", "#2ecc71", "#F59E0B", "#8B5CF6", "#10B981", "#3B82F6"];
 
 export default function Reports() {
   const [reportType, setReportType] = useState<"sales" | "inventory" | "delivery" | "financial">("sales");
@@ -50,7 +50,7 @@ export default function Reports() {
 
         <div className="flex flex-wrap gap-2">
           {tabs.map((t) => (
-            <Button key={t.key} variant={reportType === t.key ? "default" : "outline"} onClick={() => setReportType(t.key)} className={reportType === t.key ? "bg-[#E30A17] hover:bg-[#c00914] text-white" : ""}>
+            <Button key={t.key} variant={reportType === t.key ? "default" : "outline"} onClick={() => setReportType(t.key)} className={reportType === t.key ? "bg-[#1ABC9C] hover:bg-[#16a085] text-white" : ""}>
               {t.label}
             </Button>
           ))}
@@ -81,7 +81,7 @@ export default function Reports() {
                   <XAxis dataKey="label" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `RD$${(v / 1000).toFixed(0)}k`} />
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  <Bar dataKey="total" fill="#E30A17" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total" fill="#1ABC9C" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -162,7 +162,7 @@ export default function Reports() {
             <Card className="border-0 shadow-sm">
               <CardContent className="p-4">
                 <p className="text-sm text-muted-foreground">Egresos (Compras)</p>
-                <p className="text-2xl font-bold text-[#E30A17]">{formatCurrency(financialQuery.data.purchases)}</p>
+                <p className="text-2xl font-bold text-[#1ABC9C]">{formatCurrency(financialQuery.data.purchases)}</p>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm">

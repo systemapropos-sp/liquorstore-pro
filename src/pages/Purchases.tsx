@@ -71,7 +71,7 @@ export default function Purchases() {
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+              <Button className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Nueva Compra
               </Button>
@@ -135,7 +135,7 @@ export default function Purchases() {
                 )}
                 <div className="flex justify-end">
                   <div className="w-48 space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-muted-foreground">Total:</span><span className="font-bold text-[#E30A17]">{formatCurrency(total)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Total:</span><span className="font-bold text-[#1ABC9C]">{formatCurrency(total)}</span></div>
                   </div>
                 </div>
                 <Button onClick={() => createMutation.mutate({
@@ -144,7 +144,7 @@ export default function Purchases() {
                   paymentMethod: form.paymentMethod,
                   invoiceNumber: form.invoiceNumber || undefined,
                   items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, cost: i.cost, expiryDate: i.expiryDate || undefined })),
-                })} disabled={createMutation.isPending || items.length === 0 || !form.supplierId} className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+                })} disabled={createMutation.isPending || items.length === 0 || !form.supplierId} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
                   {createMutation.isPending ? "Procesando..." : "Guardar Compra"}
                 </Button>
               </div>
@@ -158,8 +158,8 @@ export default function Purchases() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                      <ShoppingCart className="w-5 h-5 text-emerald-600" />
+                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-[#1ABC9C]" />
                     </div>
                     <div>
                       <p className="font-medium text-sm">{p.invoiceNumber || "Sin factura"}</p>

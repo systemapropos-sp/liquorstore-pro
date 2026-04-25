@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
         <Card className="border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center gap-2">
-            <Building2 className="w-5 h-5 text-[#E30A17]" />
+            <Building2 className="w-5 h-5 text-[#1ABC9C]" />
             <CardTitle className="text-base">Datos del Negocio</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -75,7 +75,7 @@ export default function SettingsPage() {
                 <Input type="number" defaultValue={business?.taxRate || "18"} onChange={(e) => setBizForm({ ...bizForm, taxRate: e.target.value })} />
               </div>
             </div>
-            <Button onClick={() => updateBiz.mutate(bizForm)} disabled={updateBiz.isPending} className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+            <Button onClick={() => updateBiz.mutate(bizForm)} disabled={updateBiz.isPending} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white">
               <Save className="w-4 h-4 mr-2" /> Guardar Negocio
             </Button>
           </CardContent>
@@ -83,7 +83,7 @@ export default function SettingsPage() {
 
         <Card className="border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center gap-2">
-            <Percent className="w-5 h-5 text-[#E30A17]" />
+            <Percent className="w-5 h-5 text-[#1ABC9C]" />
             <CardTitle className="text-base">Configuración de Operaciones</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -120,7 +120,7 @@ export default function SettingsPage() {
               expiryAlertDays: setForm.expiryAlertDays ? parseInt(setForm.expiryAlertDays) : undefined,
               minDeliveryAmount: setForm.minDeliveryAmount || undefined,
               prepTimeMinutes: setForm.prepTimeMinutes ? parseInt(setForm.prepTimeMinutes) : undefined,
-            })} disabled={updateSet.isPending} className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+            })} disabled={updateSet.isPending} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white">
               <Save className="w-4 h-4 mr-2" /> Guardar Configuración
             </Button>
           </CardContent>

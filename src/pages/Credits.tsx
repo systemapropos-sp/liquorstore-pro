@@ -67,7 +67,7 @@ export default function Credits() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
                       <CreditCard className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
@@ -127,7 +127,7 @@ export default function Credits() {
               <Button
                 onClick={() => addPayment.mutate({ creditId: selectedCredit.id, amount: payAmount })}
                 disabled={addPayment.isPending || !payAmount}
-                className="bg-[#E30A17] hover:bg-[#c00914] text-white w-full"
+                className="bg-[#1ABC9C] hover:bg-[#16a085] text-white w-full shadow-sm"
               >
                 {addPayment.isPending ? "Procesando..." : "Registrar Pago"}
               </Button>

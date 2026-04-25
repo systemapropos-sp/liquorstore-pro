@@ -12,27 +12,23 @@ import Deliveries from "./pages/Deliveries";
 import Branches from "./pages/Branches";
 import Reports from "./pages/Reports";
 import SettingsPage from "./pages/Settings";
+import Transfers from "./pages/Transfers";
+import TransferHistory from "./pages/TransferHistory";
+import StockCount from "./pages/StockCount";
+import Adjustments from "./pages/Adjustments";
+import Employees from "./pages/Employees";
 import Login from "./pages/Login";
 
 function AuthRoutes() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#E30A17] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/inventario" element={<Products />} />
+      <Route path="/inventario/traslados" element={<Transfers />} />
+      <Route path="/inventario/traslados-historial" element={<TransferHistory />} />
+      <Route path="/inventario/toma" element={<StockCount />} />
+      <Route path="/inventario/ajustes" element={<Adjustments />} />
+      <Route path="/empleados" element={<Employees />} />
       <Route path="/facturacion" element={<Invoices />} />
       <Route path="/ordenes" element={<Orders />} />
       <Route path="/creditos" element={<Credits />} />

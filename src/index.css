@@ -5,63 +5,30 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 210 20% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 210 20% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.625rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --popover-foreground: 210 20% 12%;
+    --primary: 168 76% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 210 20% 20%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 10% 50%;
+    --accent: 210 20% 96%;
+    --accent-foreground: 210 20% 20%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 16% 90%;
+    --input: 210 16% 90%;
+    --ring: 168 76% 42%;
+    --radius: 0.5rem;
+    --chart-1: 168 76% 42%;
+    --chart-2: 168 60% 35%;
+    --chart-3: 168 50% 50%;
+    --chart-4: 156 60% 45%;
+    --chart-5: 160 55% 40%;
   }
 }
 
@@ -70,6 +37,61 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   }
+}
+
+/* Emerald green buttons */
+.btn-emerald {
+  @apply bg-[#1ABC9C] hover:bg-[#16a085] text-white font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+}
+
+.btn-emerald-outline {
+  @apply border-2 border-[#1ABC9C] text-[#1ABC9C] hover:bg-[#1ABC9C] hover:text-white font-medium transition-all duration-200;
+}
+
+/* Table styles */
+.table-header-emerald {
+  @apply bg-[#1ABC9C] text-white font-semibold text-sm;
+}
+
+/* Card styles */
+.card-professional {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+/* Input styles */
+.input-professional {
+  @apply border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ABC9C] focus:border-[#1ABC9C] transition-all;
+}
+
+/* Floating action button */
+.fab-button {
+  @apply fixed bottom-6 right-6 w-14 h-14 bg-[#1ABC9C] hover:bg-[#16a085] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 hover:scale-110;
+}
+
+/* Sidebar styles */
+.sidebar-item {
+  @apply flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-[#1ABC9C] hover:bg-emerald-50 rounded-md transition-all duration-150;
+}
+
+.sidebar-item-active {
+  @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-[#1ABC9C] bg-emerald-50 border-l-4 border-[#1ABC9C] rounded-md;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
 }

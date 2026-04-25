@@ -24,7 +24,7 @@ function formatCurrency(value: number | string) {
 
 const statusMap: Record<string, { label: string; color: string }> = {
   received: { label: "Recibido", color: "bg-slate-500" },
-  preparing: { label: "En preparación", color: "bg-blue-500" },
+  preparing: { label: "En preparacion", color: "bg-blue-500" },
   ready: { label: "Listo", color: "bg-amber-500" },
   shipping: { label: "En camino", color: "bg-purple-500" },
   delivered: { label: "Entregado", color: "bg-emerald-500" },
@@ -66,12 +66,12 @@ export default function Deliveries() {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Delivery / Envíos</h1>
-            <p className="text-muted-foreground">Gestión de pedidos a domicilio</p>
+            <h1 className="text-2xl font-bold tracking-tight">Delivery / Envios</h1>
+            <p className="text-muted-foreground">Gestion de pedidos a domicilio</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+              <Button className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Nuevo Pedido
               </Button>
@@ -80,8 +80,8 @@ export default function Deliveries() {
               <DialogHeader><DialogTitle>Nuevo Pedido Delivery</DialogTitle></DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="space-y-2"><Label>Cliente</Label><Input value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Teléfono</Label><Input value={form.customerPhone} onChange={(e) => setForm({ ...form, customerPhone: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Dirección</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Telefono</Label><Input value={form.customerPhone} onChange={(e) => setForm({ ...form, customerPhone: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Direccion</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
                 <div className="space-y-2"><Label>Referencias</Label><Input value={form.references} onChange={(e) => setForm({ ...form, references: e.target.value })} /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Zona</Label>
@@ -90,7 +90,7 @@ export default function Deliveries() {
                       {zones?.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
                     </select>
                   </div>
-                  <div className="space-y-2"><Label>Costo Envío</Label><Input type="number" value={form.deliveryCost} onChange={(e) => setForm({ ...form, deliveryCost: e.target.value })} /></div>
+                  <div className="space-y-2"><Label>Costo Envio</Label><Input type="number" value={form.deliveryCost} onChange={(e) => setForm({ ...form, deliveryCost: e.target.value })} /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Sucursal</Label>
@@ -115,7 +115,7 @@ export default function Deliveries() {
                   deliveryCost: form.deliveryCost || "0",
                   paymentMethod: form.paymentMethod,
                   branchId: parseInt(form.branchId) || (branches?.[0]?.id ?? 1),
-                })} disabled={createMutation.isPending || !form.customerName || !form.address} className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+                })} disabled={createMutation.isPending || !form.customerName || !form.address} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
                   {createMutation.isPending ? "Guardando..." : "Crear Pedido"}
                 </Button>
               </div>
@@ -129,7 +129,7 @@ export default function Deliveries() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
                       <Bike className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
@@ -166,11 +166,11 @@ export default function Deliveries() {
             <DialogHeader><DialogTitle>Pedido #{selected?.id}</DialogTitle></DialogHeader>
             <div className="space-y-3 py-4">
               <p className="text-sm"><strong>Cliente:</strong> {selected?.customerName}</p>
-              <p className="text-sm"><strong>Dirección:</strong> {selected?.address}</p>
+              <p className="text-sm"><strong>Direccion:</strong> {selected?.address}</p>
               <p className="text-sm"><strong>Estado:</strong> {statusMap[selected?.status]?.label || selected?.status}</p>
-              <p className="text-sm"><strong>Costo envío:</strong> {formatCurrency(selected?.deliveryCost || 0)}</p>
+              <p className="text-sm"><strong>Costo envio:</strong> {formatCurrency(selected?.deliveryCost || 0)}</p>
               <div className="flex flex-wrap gap-2 pt-2">
-                {selected?.status === "received" && <Button size="sm" variant="outline" onClick={() => { updateStatus.mutate({ id: selected.id, status: "preparing" }); setDetailOpen(false); }}>En preparación</Button>}
+                {selected?.status === "received" && <Button size="sm" variant="outline" onClick={() => { updateStatus.mutate({ id: selected.id, status: "preparing" }); setDetailOpen(false); }}>En preparacion</Button>}
                 {selected?.status === "preparing" && <Button size="sm" variant="outline" onClick={() => { updateStatus.mutate({ id: selected.id, status: "ready" }); setDetailOpen(false); }}>Listo</Button>}
                 {selected?.status === "ready" && <Button size="sm" variant="outline" onClick={() => { updateStatus.mutate({ id: selected.id, status: "shipping" }); setDetailOpen(false); }}>En camino</Button>}
                 {selected?.status === "shipping" && <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => { updateStatus.mutate({ id: selected.id, status: "delivered" }); setDetailOpen(false); }}><PackageCheck className="w-4 h-4 mr-1" /> Entregado</Button>}

@@ -48,7 +48,7 @@ export default function Branches() {
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+              <Button className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Nueva Sucursal
               </Button>
@@ -66,7 +66,7 @@ export default function Branches() {
                   <input type="checkbox" id="warehouse" checked={form.isWarehouse} onChange={(e) => setForm({ ...form, isWarehouse: e.target.checked })} />
                   <Label htmlFor="warehouse">Es bodega/almacén</Label>
                 </div>
-                <Button onClick={() => createMutation.mutate(form)} disabled={createMutation.isPending || !form.name} className="bg-[#E30A17] hover:bg-[#c00914] text-white">
+                <Button onClick={() => createMutation.mutate(form)} disabled={createMutation.isPending || !form.name} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white">
                   {createMutation.isPending ? "Guardando..." : "Guardar"}
                 </Button>
               </div>

@@ -53,7 +53,7 @@ export default function Orders() {
             <h1 className="text-2xl font-bold tracking-tight">Órdenes / Cotizaciones</h1>
             <p className="text-muted-foreground">Presupuestos y cotizaciones de venta</p>
           </div>
-          <Button className="bg-[#E30A17] hover:bg-[#c00914] text-white" onClick={() => { }}>
+          <Button className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm" onClick={() => { }}>
             <ClipboardList className="w-4 h-4 mr-2" />
             Nueva Cotización
           </Button>
@@ -65,7 +65,7 @@ export default function Orders() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
                       <ClipboardList className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
@@ -104,7 +104,7 @@ export default function Orders() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total:</span>
-                <span className="font-bold text-[#E30A17]">{formatCurrency(selectedOrder?.total || 0)}</span>
+                <span className="font-bold text-[#1ABC9C]">{formatCurrency(selectedOrder?.total || 0)}</span>
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium">Productos:</p>
