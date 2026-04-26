@@ -586,8 +586,20 @@ export interface MockUser {
   email: string;
   password: string;
   type: 'admin' | 'user';
+  role: 'admin' | 'supervisor' | 'manager' | 'cajera' | 'vendedor' | 'almacenista';
   branchId?: number;
   active: boolean;
+  createdAt: string;
+}
+
+export interface MockUserActivity {
+  id: number;
+  userId: number;
+  userName: string;
+  action: string;
+  entity: string;
+  entityId?: number;
+  details: string;
   createdAt: string;
 }
 
@@ -709,6 +721,7 @@ export interface MockDB {
   bankTransactions: MockBankTransaction[];
   cashRegisters: MockCashRegister[];
   users: MockUser[];
+  userActivities: MockUserActivity[];
   expenseConcepts: MockExpenseConcept[];
   resolutions: MockResolution[];
   taxConfigs: MockTaxConfig[];
@@ -749,9 +762,9 @@ const defaultData: MockDB = {
   ],
   products: [
     { id: 1, businessId: 1, code: 'CERVE-001', barcode: '746010000001', name: 'Presidente Regular 355ml', description: 'Cerveza lager dominicana', categoryId: 1, subcategory: 'Nacional', brand: 'CND', cost: '45.00', price: '65.00', price2: '62.00', price3: '60.00', margin: '44.44', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 24, maxStock: 500, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-01-15' },
-    { id: 2, businessId: 1, code: 'CERVE-002', barcode: '746010000002', name: 'Presidente Light 355ml', description: 'Cerveza ligera dominicana', categoryId: 1, subcategory: 'Nacional', brand: 'CND', cost: '45.00', price: '65.00', price2: '62.00', price3: '60.00', margin: '44.44', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 24, maxStock: 500, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-01-15' },
-    { id: 3, businessId: 1, code: 'CERVE-003', barcode: '746010000003', name: 'Corona Extra 355ml', description: 'Cerveza mexicana', categoryId: 2, subcategory: 'Importado', brand: 'Grupo Modelo', cost: '55.00', price: '85.00', price2: '80.00', price3: '75.00', margin: '54.55', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 12, maxStock: 200, supplierId: 2, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-02-10' },
-    { id: 4, businessId: 1, code: 'CERVE-004', barcode: '746010000004', name: 'Heineken 330ml', description: 'Cerveza holandesa', categoryId: 2, subcategory: 'Importado', brand: 'Heineken', cost: '60.00', price: '95.00', price2: '90.00', price3: '85.00', margin: '58.33', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 12, maxStock: 200, supplierId: 2, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-02-10' },
+    { id: 2, businessId: 1, code: 'CERVE-002', barcode: '746010000002', name: 'Presidente Light 355ml', description: 'Cerveza ligera dominicana', categoryId: 1, subcategory: 'Nacional', brand: 'CND', cost: '45.00', price: '65.00', price2: '62.00', price3: '60.00', margin: '44.44', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 24, maxStock: 500, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-01-15' },
+    { id: 3, businessId: 1, code: 'CERVE-003', barcode: '746010000003', name: 'Corona Extra 355ml', description: 'Cerveza mexicana', categoryId: 2, subcategory: 'Importado', brand: 'Grupo Modelo', cost: '55.00', price: '85.00', price2: '80.00', price3: '75.00', margin: '54.55', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 12, maxStock: 200, supplierId: 2, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-02-10' },
+    { id: 4, businessId: 1, code: 'CERVE-004', barcode: '746010000004', name: 'Heineken 330ml', description: 'Cerveza holandesa', categoryId: 2, subcategory: 'Importado', brand: 'Heineken', cost: '60.00', price: '95.00', price2: '90.00', price3: '85.00', margin: '58.33', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 12, maxStock: 200, supplierId: 2, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-02-10' },
     { id: 5, businessId: 1, code: 'RON-001', barcode: '746010000005', name: 'Brugal Extra Viejo 750ml', description: 'Ron anejo dominicano', categoryId: 3, subcategory: 'Nacional', brand: 'Brugal', cost: '280.00', price: '450.00', price2: '430.00', price3: '400.00', margin: '60.71', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 6, maxStock: 100, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-01-20' },
     { id: 6, businessId: 1, code: 'RON-002', barcode: '746010000006', name: 'Barcelo Imperial 750ml', description: 'Ron premium dominicano', categoryId: 3, subcategory: 'Nacional', brand: 'Barcelo', cost: '450.00', price: '750.00', price2: '720.00', price3: '700.00', margin: '66.67', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 6, maxStock: 80, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-01-20' },
     { id: 7, businessId: 1, code: 'RON-003', barcode: '746010000007', name: 'Havana Club 7 Anos 750ml', description: 'Ron cubano', categoryId: 4, subcategory: 'Importado', brand: 'Havana Club', cost: '380.00', price: '650.00', price2: '620.00', price3: '600.00', margin: '71.05', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 60, supplierId: 4, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-05' },
@@ -759,11 +772,11 @@ const defaultData: MockDB = {
     { id: 9, businessId: 1, code: 'VINO-002', barcode: '746010000009', name: 'Santa Carolina Reserva', description: 'Vino tinto chileno', categoryId: 5, subcategory: 'Importado', brand: 'Santa Carolina', cost: '400.00', price: '650.00', price2: '620.00', price3: '600.00', margin: '62.50', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 6, maxStock: 80, supplierId: 3, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-02-20' },
     { id: 10, businessId: 1, code: 'VINO-003', barcode: '746010000010', name: 'Concha y Toro Chardonnay', description: 'Vino blanco chileno', categoryId: 6, subcategory: 'Importado', brand: 'Concha y Toro', cost: '320.00', price: '520.00', price2: '500.00', price3: '480.00', margin: '62.50', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 6, maxStock: 80, supplierId: 3, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-02-20' },
     { id: 11, businessId: 1, code: 'WHIS-001', barcode: '746010000011', name: 'Johnnie Walker Red Label 750ml', description: 'Whisky escoces', categoryId: 7, subcategory: 'Importado', brand: 'Johnnie Walker', cost: '550.00', price: '950.00', price2: '900.00', price3: '850.00', margin: '72.73', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-10' },
-    { id: 12, businessId: 1, code: 'WHIS-002', barcode: '746010000012', name: 'Jack Daniels Old No.7 750ml', description: 'Whisky americano', categoryId: 7, subcategory: 'Importado', brand: 'Jack Daniels', cost: '600.00', price: '1050.00', price2: '1000.00', price3: '950.00', margin: '75.00', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-10' },
-    { id: 13, businessId: 1, code: 'VODK-001', barcode: '746010000013', name: 'Absolut Vodka 750ml', description: 'Vodka sueco', categoryId: 8, subcategory: 'Importado', brand: 'Absolut', cost: '400.00', price: '700.00', price2: '670.00', price3: '650.00', margin: '75.00', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-10' },
-    { id: 14, businessId: 1, code: 'TEQU-001', barcode: '746010000014', name: 'Jose Cuervo Especial 750ml', description: 'Tequila mexicano', categoryId: 9, subcategory: 'Importado', brand: 'Jose Cuervo', cost: '350.00', price: '620.00', price2: '600.00', price3: '580.00', margin: '77.14', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-10' },
-    { id: 15, businessId: 1, code: 'OTRO-001', barcode: '746010000015', name: 'Baileys Irish Cream 750ml', description: 'Licor de crema irlandes', categoryId: 10, subcategory: 'Importado', brand: 'Baileys', cost: '480.00', price: '850.00', price2: '820.00', price3: '800.00', margin: '77.08', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 40, supplierId: 4, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-15' },
-    { id: 16, businessId: 1, code: 'CERVE-005', barcode: '746010000016', name: 'Six-Pack Presidente 355ml', description: 'Pack de 6 cervezas', categoryId: 1, subcategory: 'Nacional', brand: 'CND', cost: '270.00', price: '380.00', price2: '365.00', price3: '350.00', margin: '40.74', unit: 'six-pack', taxType: 'taxed', taxRate: '18.00', minStock: 10, maxStock: 200, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: true, createdAt: '2024-01-15' }
+    { id: 12, businessId: 1, code: 'WHIS-002', barcode: '746010000012', name: 'Jack Daniels Old No.7 750ml', description: 'Whisky americano', categoryId: 7, subcategory: 'Importado', brand: 'Jack Daniels', cost: '600.00', price: '1050.00', price2: '1000.00', price3: '950.00', margin: '75.00', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=200&h=200&fit=crop', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-10' },
+    { id: 13, businessId: 1, code: 'VODK-001', barcode: '746010000013', name: 'Absolut Vodka 750ml', description: 'Vodka sueco', categoryId: 8, subcategory: 'Importado', brand: 'Absolut', cost: '400.00', price: '700.00', price2: '670.00', price3: '650.00', margin: '75.00', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: 'https://images.unsplash.com/photo-1606991235658-823231c09a97?w=200&h=200&fit=crop', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-03-10' },
+    { id: 14, businessId: 1, code: 'TEQU-001', barcode: '746010000014', name: 'Jose Cuervo Especial 750ml', description: 'Tequila mexicano', categoryId: 9, subcategory: 'Importado', brand: 'Jose Cuervo', cost: '350.00', price: '620.00', price2: '600.00', price3: '580.00', margin: '77.14', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 50, supplierId: 4, photoUrl: 'https://images.unsplash.com/photo-1552913902-2f1169e4b92b?w=200&h=200&fit=crop', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-10' },
+    { id: 15, businessId: 1, code: 'OTRO-001', barcode: '746010000015', name: 'Baileys Irish Cream 750ml', description: 'Licor de crema irlandes', categoryId: 10, subcategory: 'Importado', brand: 'Baileys', cost: '480.00', price: '850.00', price2: '820.00', price3: '800.00', margin: '77.08', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 4, maxStock: 40, supplierId: 4, photoUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=200&h=200&fit=crop', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: false, createdAt: '2024-03-15' },
+    { id: 16, businessId: 1, code: 'CERVE-005', barcode: '746010000016', name: 'Six-Pack Presidente 355ml', description: 'Pack de 6 cervezas', categoryId: 1, subcategory: 'Nacional', brand: 'CND', cost: '270.00', price: '380.00', price2: '365.00', price3: '350.00', margin: '40.74', unit: 'six-pack', taxType: 'taxed', taxRate: '18.00', minStock: 10, maxStock: 200, supplierId: 1, photoUrl: 'https://images.unsplash.com/photo-1584225064785-c62a8b43d148?w=200&h=200&fit=crop', isInventoriable: true, isBillable: true, isFavorite: false, active: true, isCombo: true, createdAt: '2024-01-15' }
   ],
   batches: [
     { id: 1, productId: 1, batchNumber: 'L2024-001A', manufactureDate: '2024-02-01', expiryDate: '2025-08-01', quantity: 34, cost: '45.00', branchId: 1, status: 'active' },
@@ -883,11 +896,18 @@ const defaultData: MockDB = {
     { id: 2, businessId: 1, branchId: 1, name: 'CAJA 2', serial: '2', location: 'Barra', status: 'closed', baseAmount: '3000.00', currentAmount: '3000.00', openedAt: '2026-04-24T08:00:00Z', closedAt: '2026-04-24T20:00:00Z' }
   ],
   users: [
-    { id: 1, businessId: 1, fullName: 'ALEJANDRO ACOSTA', email: 'ALEJANDRO@MASCONTROL.COM', password: 'admin123', type: 'admin', active: true, createdAt: '2026-01-01T00:00:00Z' },
-    { id: 2, businessId: 1, fullName: 'JOSE DEVAREZ', email: 'SMARTLIQUORSTORE@MASCONTROL.COM', password: 'admin123', type: 'admin', active: true, createdAt: '2026-01-01T00:00:00Z' },
-    { id: 3, businessId: 1, fullName: 'smart billar', email: 'smartbillar@MASCONTROL.COM', password: 'user123', type: 'user', branchId: 1, active: true, createdAt: '2026-01-01T00:00:00Z' },
-    { id: 4, businessId: 1, fullName: 'VENTA DE VAPE', email: 'VENTADEVAPE@MASCONTROL.COM', password: 'user123', type: 'user', active: true, createdAt: '2026-01-01T00:00:00Z' },
-    { id: 5, businessId: 1, fullName: 'YASEL VAPES', email: 'YASELVAPES@MASCONTROL.COM', password: 'user123', type: 'user', active: true, createdAt: '2026-01-01T00:00:00Z' }
+    { id: 1, businessId: 1, fullName: 'ALEJANDRO ACOSTA', email: 'ALEJANDRO@MASCONTROL.COM', password: 'admin123', type: 'admin', role: 'admin', active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 2, businessId: 1, fullName: 'JOSE DEVAREZ', email: 'SMARTLIQUORSTORE@MASCONTROL.COM', password: 'admin123', type: 'admin', role: 'manager', active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 3, businessId: 1, fullName: 'MARIA FERNANDEZ', email: 'maria@MASCONTROL.COM', password: 'user123', type: 'user', role: 'cajera', branchId: 1, active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 4, businessId: 1, fullName: 'PEDRO SANCHEZ', email: 'pedro@MASCONTROL.COM', password: 'user123', type: 'user', role: 'vendedor', active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 5, businessId: 1, fullName: 'LAURA MARTINEZ', email: 'laura@MASCONTROL.COM', password: 'user123', type: 'user', role: 'almacenista', active: true, createdAt: '2026-01-01T00:00:00Z' }
+  ],
+  userActivities: [
+    { id: 1, userId: 1, userName: 'ALEJANDRO ACOSTA', action: 'login', entity: 'session', details: 'Inicio de sesion', createdAt: '2026-04-27T08:00:00Z' },
+    { id: 2, userId: 2, userName: 'JOSE DEVAREZ', action: 'create', entity: 'invoice', entityId: 1, details: 'Creo factura A-000001', createdAt: '2026-04-27T09:15:00Z' },
+    { id: 3, userId: 3, userName: 'MARIA FERNANDEZ', action: 'create', entity: 'invoice', entityId: 2, details: 'Creo factura A-000002', createdAt: '2026-04-27T10:30:00Z' },
+    { id: 4, userId: 1, userName: 'ALEJANDRO ACOSTA', action: 'update', entity: 'product', entityId: 1, details: 'Actualizo producto Presidente Regular', createdAt: '2026-04-27T11:00:00Z' },
+    { id: 5, userId: 4, userName: 'PEDRO SANCHEZ', action: 'create', entity: 'order', entityId: 1, details: 'Creo orden de venta COT-000001', createdAt: '2026-04-27T12:45:00Z' }
   ],
   expenseConcepts: [
     { id: 1, businessId: 1, type: 'income', code: '0001', concept: 'Ventas' },

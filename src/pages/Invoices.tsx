@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import {
   Search, Trash2, Minus, Plus, ShoppingCart, FileText, CreditCard, User,
-  DollarSign, Tag, ChevronLeft, ChevronRight, X, Printer
+  DollarSign, Tag, Star, ChevronLeft, ChevronRight, X, Printer
 } from "lucide-react";
 
 function formatCurrency(value: number | string) {
@@ -29,6 +29,7 @@ interface CartItem {
 export default function Invoices() {
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<number | null>(null);
+  const [favOnly, setFavOnly] = useState(false);
   const [barcodeInput, setBarcodeInput] = useState("");
 
   // Cart state
@@ -63,15 +64,23 @@ export default function Invoices() {
   // Filtered products
   const filteredProducts = useMemo(() => {
     if (!products) return [];
-    return products.filter(p => {
+    const list = products.filter(p => {
       const matchesSearch = !search ||
         p.name?.toLowerCase().includes(search.toLowerCase()) ||
         p.code?.toLowerCase().includes(search.toLowerCase()) ||
         p.barcode?.toLowerCase().includes(search.toLowerCase());
       const matchesCat = !catFilter || p.categoryId === catFilter;
-      return matchesSearch && matchesCat;
+      const matchesFav = !favOnly || p.isFavorite;
+      return matchesSearch && matchesCat && matchesFav;
     });
-  }, [products, search, catFilter]);
+    // Sort: favorites first, then by name
+    list.sort((a: any, b: any) => {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      return a.name.localeCompare(b.name);
+    });
+    return list;
+  }, [products, search, catFilter, favOnly]);
 
   // Cart calculations
   const addToCart = (productId: number, name: string, price: number, cost: number) => {
@@ -192,13 +201,17 @@ export default function Invoices() {
               {/* Category tabs */}
               <div className="flex gap-1.5 overflow-x-auto pb-0.5">
                 <button
-                  onClick={() => setCatFilter(null)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all ${catFilter === null ? "bg-[#1ABC9C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#1ABC9C] hover:text-[#1ABC9C]"}`}
+                  onClick={() => { setCatFilter(null); setFavOnly(false); }}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all ${catFilter === null && !favOnly ? "bg-[#1ABC9C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#1ABC9C] hover:text-[#1ABC9C]"}`}
                 >TODOS</button>
+                <button
+                  onClick={() => { setCatFilter(null); setFavOnly(true); }}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1 ${favOnly ? "bg-amber-400 text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-amber-400 hover:text-amber-500"}`}
+                ><Star className="w-3 h-3" />FAVORITOS</button>
                 {categories?.map(c => (
                   <button
                     key={c.id}
-                    onClick={() => setCatFilter(c.id)}
+                    onClick={() => { setCatFilter(c.id); setFavOnly(false); }}
                     className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all ${catFilter === c.id ? "bg-[#1ABC9C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#1ABC9C] hover:text-[#1ABC9C]"}`}
                   >{c.name}</button>
                 ))}
@@ -223,7 +236,7 @@ export default function Invoices() {
                   <p className="text-sm">No se encontraron productos</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filteredProducts.map(p => {
                     const price = parseFloat(p.price || "0");
                     const stock = (p.inventory?.reduce((sum: number, inv: any) => sum + (inv.quantity || 0), 0) || 0);
@@ -232,21 +245,41 @@ export default function Invoices() {
                       <button
                         key={p.id}
                         onClick={() => addToCart(p.id, p.name, price, parseFloat(p.cost || "0"))}
-                        className={`relative flex flex-col items-center p-3 rounded-lg border transition-all hover:shadow-md text-left ${inCart ? "border-[#1ABC9C] bg-emerald-50 ring-1 ring-[#1ABC9C]" : "border-gray-200 bg-white hover:border-[#1ABC9C]"}`}
+                        className={`relative flex flex-col rounded-lg border transition-all hover:shadow-md text-left overflow-hidden ${inCart ? "border-[#1ABC9C] bg-emerald-50 ring-1 ring-[#1ABC9C]" : "border-gray-200 bg-white hover:border-[#1ABC9C]"}`}
                       >
-                        {inCart && (
-                          <Badge className="absolute top-1.5 right-1.5 bg-[#1ABC9C] text-white text-[10px] h-5 px-1.5">{inCart.quantity}</Badge>
-                        )}
-                        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center mb-2">
-                          <Tag className="w-7 h-7 text-gray-400" />
+                        {/* Full-width image area */}
+                        <div className="relative w-full h-28 bg-gray-100 flex items-center justify-center overflow-hidden">
+                          {p.photoUrl ? (
+                            <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="flex flex-col items-center justify-center text-gray-400">
+                              <Tag className="w-10 h-10" />
+                            </div>
+                          )}
+                          {/* Gradient overlay at bottom */}
+                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
+                          {/* Favorite badge */}
+                          {p.isFavorite && (
+                            <Badge className="absolute top-1.5 left-1.5 bg-amber-400 text-white text-[10px] h-5 px-1.5 border-0">
+                              <Star className="w-2.5 h-2.5 mr-0.5 fill-white" />
+                            </Badge>
+                          )}
+                          {/* Cart quantity badge */}
+                          {inCart && (
+                            <Badge className="absolute top-1.5 right-1.5 bg-[#1ABC9C] text-white text-[10px] h-5 px-1.5 border-0">{inCart.quantity}</Badge>
+                          )}
+                          {/* Stock badge at bottom of image */}
+                          <span className={`absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${stock <= 5 ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}`}>
+                            {stock} und
+                          </span>
                         </div>
-                        <p className="text-xs font-medium text-gray-800 text-center leading-tight line-clamp-2 w-full">{p.name}</p>
-                        <p className="text-[10px] text-gray-500 mt-0.5 text-center">{p.code}</p>
-                        <div className="mt-auto pt-2 flex items-baseline justify-center gap-1">
-                          <span className="text-sm font-bold text-[#1ABC9C]">{formatCurrency(price)}</span>
-                        </div>
-                        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-gray-400">
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] ${stock <= 5 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}>{stock} und</span>
+                        {/* Product info */}
+                        <div className="p-2.5 flex flex-col flex-1">
+                          <p className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">{p.name}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">{p.code}</p>
+                          <div className="mt-auto pt-1.5 flex items-baseline justify-center gap-1">
+                            <span className="text-sm font-bold text-[#1ABC9C]">{formatCurrency(price)}</span>
+                          </div>
                         </div>
                       </button>
                     );

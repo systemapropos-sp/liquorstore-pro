@@ -17,6 +17,12 @@ function useRecentActivity(input?: any, opts?: any) {
 function useProductCategories(input?: any, opts?: any) {
   return useQuery({ queryKey: ['product', 'categories'], queryFn: mockApi.listCategories, ...opts });
 }
+function useCategoryList(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['category', 'list'], queryFn: mockApi.listCategories, ...opts });
+}
+function useCategoryCreate(opts?: any) {
+  return useMutation({ mutationFn: mockApi.createCategory, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['category'] }), ...opts });
+}
 function useProductList(input?: any, opts?: any) {
   return useQuery({ queryKey: ['product', 'list', input], queryFn: () => mockApi.listProducts(input?.search, input?.categoryId, input?.filters), ...opts });
 }
@@ -164,6 +170,36 @@ function useDeliveryReport(input?: any, opts?: any) {
 function useFinancialReport(input?: any, opts?: any) {
   return useQuery({ queryKey: ['report', 'financial', input?.fromDate, input?.toDate], queryFn: () => mockApi.financialReport(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
 }
+function useReportSalesByProduct(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'salesByProduct', input?.fromDate, input?.toDate], queryFn: () => mockApi.reportSalesByProduct(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
+}
+function useReportSalesByCustomer(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'salesByCustomer', input?.fromDate, input?.toDate], queryFn: () => mockApi.reportSalesByCustomer(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
+}
+function useReportSalesByPaymentMethod(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'salesByPayment', input?.fromDate, input?.toDate], queryFn: () => mockApi.reportSalesByPaymentMethod(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
+}
+function useReportLowStock(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'lowStock'], queryFn: mockApi.reportLowStock, ...opts });
+}
+function useReportOutOfStock(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'outOfStock'], queryFn: mockApi.reportOutOfStock, ...opts });
+}
+function useReportPurchasesBySupplier(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'purchasesBySupplier', input?.fromDate, input?.toDate], queryFn: () => mockApi.reportPurchasesBySupplier(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
+}
+function useReportExpensesByDate(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'expensesByDate', input?.fromDate, input?.toDate], queryFn: () => mockApi.reportExpensesByDate(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
+}
+function useReportIncomeVsExpenses(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'incomeVsExpenses', input?.fromDate, input?.toDate], queryFn: () => mockApi.reportIncomeVsExpenses(input?.fromDate, input?.toDate), enabled: !!input?.fromDate && !!input?.toDate, ...opts });
+}
+function useReportTopCustomers(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'topCustomers'], queryFn: mockApi.reportTopCustomers, ...opts });
+}
+function useReportInventoryValue(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['report', 'inventoryValue'], queryFn: mockApi.reportInventoryValue, ...opts });
+}
 function useCurrentUser(input?: any, opts?: any) {
   return { data: mockApi.getCurrentUser(), isLoading: false, error: null, refetch: () => {} };
 }
@@ -293,13 +329,19 @@ function useUserList(input?: any, opts?: any) {
   return useQuery({ queryKey: ['user', 'list', input], queryFn: () => mockApi.listUsers(input?.type), ...opts });
 }
 function useUserCreate(opts?: any) {
-  return useMutation({ mutationFn: mockApi.createUser, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user'] }), ...opts });
+  return useMutation({ mutationFn: mockApi.createUser, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['user'] }); queryClient.invalidateQueries({ queryKey: ['userActivity'] }); }, ...opts });
 }
 function useUserUpdate(opts?: any) {
-  return useMutation({ mutationFn: ({ id, ...data }: any) => mockApi.updateUser(id, data), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user'] }), ...opts });
+  return useMutation({ mutationFn: ({ id, ...data }: any) => mockApi.updateUser(id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['user'] }); queryClient.invalidateQueries({ queryKey: ['userActivity'] }); }, ...opts });
 }
 function useUserDelete(opts?: any) {
-  return useMutation({ mutationFn: (id: number) => mockApi.deleteUser(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user'] }), ...opts });
+  return useMutation({ mutationFn: (id: number) => mockApi.deleteUser(id), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['user'] }); queryClient.invalidateQueries({ queryKey: ['userActivity'] }); }, ...opts });
+}
+function useUserActivityList(input?: any, opts?: any) {
+  return useQuery({ queryKey: ['userActivity', 'list', input], queryFn: () => mockApi.listUserActivities(input?.userId, input?.limit), ...opts });
+}
+function useUserActivityCreate(opts?: any) {
+  return useMutation({ mutationFn: mockApi.createUserActivity, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['userActivity'] }), ...opts });
 }
 function useExpenseConceptList(input?: any, opts?: any) {
   return useQuery({ queryKey: ['expenseConcept', 'list', input], queryFn: () => mockApi.listExpenseConcepts(input?.type), ...opts });
@@ -418,6 +460,7 @@ function useUtils() {
 export const trpc = {
   dashboard: { stats: { useQuery: useDashboardStats }, recentActivity: { useQuery: useRecentActivity } },
   product: { listCategories: { useQuery: useProductCategories }, list: { useQuery: useProductList }, create: { useMutation: useProductCreate }, update: { useMutation: useProductUpdate }, delete: { useMutation: useProductDelete } },
+  category: { list: { useQuery: useCategoryList }, create: { useMutation: useCategoryCreate } },
   customer: { list: { useQuery: useCustomerList }, create: { useMutation: useCustomerCreate }, update: { useMutation: useCustomerUpdate }, delete: { useMutation: useCustomerDelete } },
   supplier: { list: { useQuery: useSupplierList }, create: { useMutation: useSupplierCreate }, update: { useMutation: useSupplierUpdate }, delete: { useMutation: useSupplierDelete } },
   employee: { list: { useQuery: useEmployeeList }, create: { useMutation: useEmployeeCreate }, update: { useMutation: useEmployeeUpdate }, delete: { useMutation: useEmployeeDelete } },
@@ -439,6 +482,7 @@ export const trpc = {
   bank: { list: { useQuery: useBankList }, create: { useMutation: useBankCreate }, update: { useMutation: useBankUpdate }, delete: { useMutation: useBankDelete }, transactions: { useQuery: useBankTransactionList }, transactionCreate: { useMutation: useBankTransactionCreate }, mainCash: { useQuery: useMainCash } },
   cashRegister: { list: { useQuery: useCashRegisterList }, create: { useMutation: useCashRegisterCreate }, update: { useMutation: useCashRegisterUpdate }, delete: { useMutation: useCashRegisterDelete } },
   user: { list: { useQuery: useUserList }, create: { useMutation: useUserCreate }, update: { useMutation: useUserUpdate }, delete: { useMutation: useUserDelete } },
+  userActivity: { list: { useQuery: useUserActivityList }, create: { useMutation: useUserActivityCreate } },
   expenseConcept: { list: { useQuery: useExpenseConceptList }, create: { useMutation: useExpenseConceptCreate }, delete: { useMutation: useExpenseConceptDelete } },
   resolution: { list: { useQuery: useResolutionList }, create: { useMutation: useResolutionCreate }, update: { useMutation: useResolutionUpdate } },
   taxConfig: { list: { useQuery: useTaxConfigList }, create: { useMutation: useTaxConfigCreate }, update: { useMutation: useTaxConfigUpdate }, delete: { useMutation: useTaxConfigDelete } },
@@ -450,7 +494,22 @@ export const trpc = {
   expense: { list: { useQuery: useExpenseList }, create: { useMutation: useExpenseCreate }, delete: { useMutation: useExpenseDelete } },
   fixedExpense: { list: { useQuery: useFixedExpenseList }, create: { useMutation: useFixedExpenseCreate }, update: { useMutation: useFixedExpenseUpdate }, delete: { useMutation: useFixedExpenseDelete } },
   settings: { getBusiness: { useQuery: useBusiness }, getSettings: { useQuery: useBusinessSettings }, updateBusiness: { useMutation: useBusinessUpdate }, updateSettings: { useMutation: useSettingsUpdate }, getBranches: { useQuery: useBranchList } },
-  report: { salesReport: { useQuery: useSalesReport }, inventoryReport: { useQuery: useInventoryReport }, deliveryReport: { useQuery: useDeliveryReport }, financialReport: { useQuery: useFinancialReport } },
+  report: {
+    salesReport: { useQuery: useSalesReport },
+    inventoryReport: { useQuery: useInventoryReport },
+    deliveryReport: { useQuery: useDeliveryReport },
+    financialReport: { useQuery: useFinancialReport },
+    salesByProduct: { useQuery: useReportSalesByProduct },
+    salesByCustomer: { useQuery: useReportSalesByCustomer },
+    salesByPaymentMethod: { useQuery: useReportSalesByPaymentMethod },
+    lowStock: { useQuery: useReportLowStock },
+    outOfStock: { useQuery: useReportOutOfStock },
+    purchasesBySupplier: { useQuery: useReportPurchasesBySupplier },
+    expensesByDate: { useQuery: useReportExpensesByDate },
+    incomeVsExpenses: { useQuery: useReportIncomeVsExpenses },
+    topCustomers: { useQuery: useReportTopCustomers },
+    inventoryValue: { useQuery: useReportInventoryValue },
+  },
   auth: { me: { useQuery: useCurrentUser }, logout: { useMutation: useLogout } },
   useUtils,
 } as any;

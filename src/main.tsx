@@ -1,16 +1,22 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { HashRouter } from 'react-router'
-import './index.css'
-import { TRPCProvider } from "@/providers/trpc"
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HashRouter } from "react-router";
+import App from "./App";
+import "./index.css";
 
-createRoot(document.getElementById('root')!).render(
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: Infinity, refetchOnWindowFocus: false, retry: false },
+  },
+});
+
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <HashRouter>
-      <TRPCProvider>
+    <QueryClientProvider client={queryClient}>
+      <HashRouter>
         <App />
-      </TRPCProvider>
-    </HashRouter>
-  </StrictMode>,
-)
+      </HashRouter>
+    </QueryClientProvider>
+  </StrictMode>
+);

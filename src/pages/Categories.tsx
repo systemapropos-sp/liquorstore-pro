@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/providers/trpc";
+import { Layout } from "@/components/Layout";
 import { ArrowLeft, Plus, Search, Trash2, Edit2, Image, Upload } from "lucide-react";
 
 export default function CategoriesPage() {
@@ -27,7 +28,8 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="p-6">
+    <Layout>
+      <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
         <Link to="/inventario" className="text-gray-500 hover:text-gray-700"><ArrowLeft className="w-5 h-5" /></Link>
         <h1 className="text-2xl font-bold text-gray-800">CREAR CATEGORIAS</h1>
@@ -105,5 +107,6 @@ export default function CategoriesPage() {
         </table>
       </div>
     </div>
+    </Layout>
   );
 }

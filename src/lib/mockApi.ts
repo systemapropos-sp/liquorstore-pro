@@ -103,6 +103,20 @@ export function listCategories() {
   return get().categories.filter(c => c.businessId === businessId && c.active);
 }
 
+export function createCategory(data: any) {
+  const db = get();
+  const newCat = {
+    id: Date.now(),
+    businessId,
+    name: data.name || '',
+    type: data.type || 'other',
+    active: true,
+  };
+  db.categories.push(newCat);
+  save(db);
+  return newCat;
+}
+
 export function listProducts(search?: string, categoryId?: number, filters?: any) {
   let prods = get().products.filter(p => p.businessId === businessId && p.active);
   if (search) prods = prods.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.code.toLowerCase().includes(search.toLowerCase()) || p.barcode?.includes(search));
@@ -1348,10 +1362,22 @@ export function createUser(data: any) {
     ...data,
     id: nextId(d.users),
     businessId,
+    role: data.role || 'cajera',
     active: true,
     createdAt: now()
   };
   d.users.push(newUser);
+  // Log activity
+  d.userActivities.push({
+    id: nextId(d.userActivities),
+    userId: currentUser.id,
+    userName: currentUser.name,
+    action: 'create',
+    entity: 'user',
+    entityId: newUser.id,
+    details: `Creo usuario ${newUser.fullName} con rol ${newUser.role}`,
+    createdAt: now()
+  });
   persist();
   return { ...newUser, password: undefined };
 }
@@ -1361,6 +1387,17 @@ export function updateUser(id: number, data: any) {
   const idx = d.users.findIndex(u => u.id === id);
   if (idx === -1) return null;
   d.users[idx] = { ...d.users[idx], ...data };
+  // Log activity
+  d.userActivities.push({
+    id: nextId(d.userActivities),
+    userId: currentUser.id,
+    userName: currentUser.name,
+    action: 'update',
+    entity: 'user',
+    entityId: id,
+    details: `Actualizo usuario ${d.users[idx].fullName}`,
+    createdAt: now()
+  });
   persist();
   return { ...d.users[idx], password: undefined };
 }
@@ -1369,9 +1406,47 @@ export function deleteUser(id: number) {
   const d = get();
   const idx = d.users.findIndex(u => u.id === id);
   if (idx === -1) return { success: false };
+  const userName = d.users[idx].fullName;
   d.users.splice(idx, 1);
+  // Log activity
+  d.userActivities.push({
+    id: nextId(d.userActivities),
+    userId: currentUser.id,
+    userName: currentUser.name,
+    action: 'delete',
+    entity: 'user',
+    entityId: id,
+    details: `Elimino usuario ${userName}`,
+    createdAt: now()
+  });
   persist();
   return { success: true };
+}
+
+// ========== USER ACTIVITIES ==========
+export function listUserActivities(userId?: number, limit?: number) {
+  let acts = get().userActivities;
+  if (userId) acts = acts.filter(a => a.userId === userId);
+  acts = acts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  if (limit) acts = acts.slice(0, limit);
+  return acts;
+}
+
+export function createUserActivity(data: any) {
+  const d = get();
+  const newAct = {
+    id: nextId(d.userActivities),
+    userId: data.userId || currentUser.id,
+    userName: data.userName || currentUser.name,
+    action: data.action,
+    entity: data.entity,
+    entityId: data.entityId,
+    details: data.details,
+    createdAt: now()
+  };
+  d.userActivities.push(newAct);
+  persist();
+  return newAct;
 }
 
 // ========== EXPENSE CONCEPTS ==========
@@ -1600,6 +1675,135 @@ export function createPurchase(data: any) {
   }
   persist();
   return newPurchase;
+}
+
+// ========== REPORTS WITH REAL LOGIC ==========
+
+export function reportSalesByProduct(fromDate: string, toDate: string) {
+  const d = get();
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  const items = d.invoiceItems.filter(item => {
+    const inv = d.invoices.find(i => i.id === item.invoiceId);
+    return inv && new Date(inv.date) >= from && new Date(inv.date) <= to;
+  });
+  const productMap: Record<number, { productId: number; productName: string; qty: number; total: number }> = {};
+  items.forEach(item => {
+    if (!productMap[item.productId]) productMap[item.productId] = { productId: item.productId, productName: item.productName, qty: 0, total: 0 };
+    productMap[item.productId].qty += item.quantity;
+    productMap[item.productId].total += parseFloat(item.total);
+  });
+  return Object.values(productMap).sort((a, b) => b.qty - a.qty);
+}
+
+export function reportSalesByCustomer(fromDate: string, toDate: string) {
+  const d = get();
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  const invs = d.invoices.filter(i => new Date(i.date) >= from && new Date(i.date) <= to && i.status === 'paid');
+  const custMap: Record<number, { customerId: number; customerName: string; invoices: number; total: number }> = {};
+  invs.forEach(inv => {
+    const cid = inv.customerId || 0;
+    if (!custMap[cid]) custMap[cid] = { customerId: cid, customerName: inv.customerName || 'Contado', invoices: 0, total: 0 };
+    custMap[cid].invoices++;
+    custMap[cid].total += parseFloat(inv.total);
+  });
+  return Object.values(custMap).sort((a, b) => b.total - a.total);
+}
+
+export function reportSalesByPaymentMethod(fromDate: string, toDate: string) {
+  const d = get();
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  const invs = d.invoices.filter(i => new Date(i.date) >= from && new Date(i.date) <= to && i.status === 'paid');
+  const methodMap: Record<string, { method: string; count: number; total: number }> = {};
+  invs.forEach(inv => {
+    if (!methodMap[inv.paymentMethod]) methodMap[inv.paymentMethod] = { method: inv.paymentMethod, count: 0, total: 0 };
+    methodMap[inv.paymentMethod].count++;
+    methodMap[inv.paymentMethod].total += parseFloat(inv.total);
+  });
+  return Object.values(methodMap).sort((a, b) => b.total - a.total);
+}
+
+export function reportLowStock() {
+  const d = get();
+  return d.products.filter(p => p.active).map(p => {
+    const inv = d.inventory.filter(i => i.productId === p.id);
+    const totalQty = inv.reduce((s, i) => s + i.quantity, 0);
+    return { productId: p.id, name: p.name, code: p.code, totalQty, minStock: p.minStock, maxStock: p.maxStock };
+  }).filter(p => p.totalQty <= p.minStock).sort((a, b) => a.totalQty - b.totalQty);
+}
+
+export function reportOutOfStock() {
+  const d = get();
+  return d.products.filter(p => p.active).map(p => {
+    const inv = d.inventory.filter(i => i.productId === p.id);
+    const totalQty = inv.reduce((s, i) => s + i.quantity, 0);
+    return { productId: p.id, name: p.name, code: p.code, totalQty, category: d.categories.find(c => c.id === p.categoryId)?.name };
+  }).filter(p => p.totalQty === 0);
+}
+
+export function reportPurchasesBySupplier(fromDate: string, toDate: string) {
+  const d = get();
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  const purs = d.purchases.filter(p => new Date(p.date) >= from && new Date(p.date) <= to);
+  const supMap: Record<number, { supplierId: number; supplierName: string; purchases: number; total: number }> = {};
+  purs.forEach(p => {
+    if (!supMap[p.supplierId]) supMap[p.supplierId] = { supplierId: p.supplierId, supplierName: p.supplierName, purchases: 0, total: 0 };
+    supMap[p.supplierId].purchases++;
+    supMap[p.supplierId].total += parseFloat(p.total);
+  });
+  return Object.values(supMap).sort((a, b) => b.total - a.total);
+}
+
+export function reportExpensesByDate(fromDate: string, toDate: string) {
+  const d = get();
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  const exps = d.expenses.filter(e => e.businessId === businessId && e.date >= fromDate && e.date <= toDate);
+  const daily: Record<string, { date: string; income: number; expense: number }> = {};
+  exps.forEach(e => {
+    if (!daily[e.date]) daily[e.date] = { date: e.date, income: 0, expense: 0 };
+    if (e.type === 'income') daily[e.date].income += parseFloat(e.amount);
+    else daily[e.date].expense += parseFloat(e.amount);
+  });
+  return Object.values(daily).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function reportIncomeVsExpenses(fromDate: string, toDate: string) {
+  const d = get();
+  const sales = d.invoices.filter(i => i.status === 'paid' && i.date >= fromDate && i.date <= toDate).reduce((s, i) => s + parseFloat(i.total), 0);
+  const purchases = d.purchases.filter(p => p.date >= fromDate && p.date <= toDate).reduce((s, p) => s + parseFloat(p.total), 0);
+  const expenses = d.expenses.filter(e => e.type === 'expense' && e.date >= fromDate && e.date <= toDate).reduce((s, e) => s + parseFloat(e.amount), 0);
+  const income = d.expenses.filter(e => e.type === 'income' && e.date >= fromDate && e.date <= toDate).reduce((s, e) => s + parseFloat(e.amount), 0);
+  const totalIncome = sales + income;
+  const totalExpenses = purchases + expenses;
+  return { sales, purchases, expenses, income, totalIncome, totalExpenses, net: totalIncome - totalExpenses };
+}
+
+export function reportTopCustomers() {
+  const d = get();
+  const custMap: Record<number, { customerId: number; customerName: string; totalPurchased: number; visits: number }> = {};
+  d.invoices.filter(i => i.status === 'paid').forEach(inv => {
+    const cid = inv.customerId || 0;
+    if (!custMap[cid]) custMap[cid] = { customerId: cid, customerName: inv.customerName || 'Contado', totalPurchased: 0, visits: 0 };
+    custMap[cid].totalPurchased += parseFloat(inv.total);
+    custMap[cid].visits++;
+  });
+  return Object.values(custMap).sort((a, b) => b.totalPurchased - a.totalPurchased).slice(0, 20);
+}
+
+export function reportInventoryValue() {
+  const d = get();
+  return d.products.filter(p => p.active).map(p => {
+    const inv = d.inventory.filter(i => i.productId === p.id);
+    const totalQty = inv.reduce((s, i) => s + i.quantity, 0);
+    const totalCost = totalQty * parseFloat(p.cost);
+    const totalValue = totalQty * parseFloat(p.price);
+    const category = d.categories.find(c => c.id === p.categoryId);
+    return { productId: p.id, name: p.name, code: p.code, category: category?.name, totalQty, unitCost: p.cost, unitPrice: p.price, totalCost, totalValue, profit: totalValue - totalCost };
+  }).filter(p => p.totalQty > 0);
 }
 
 // ========== EXPENSES ==========

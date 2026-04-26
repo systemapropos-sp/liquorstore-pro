@@ -11,7 +11,8 @@ import {
   LogOut, Building2, ClipboardList, ChevronDown, ChevronUp,
   Plus, Search, Bell, RefreshCw, HelpCircle, X,
   ArrowLeftRight, ClipboardCheck, ListChecks, History,
-  UserCircle, MessageCircle, ChefHat, Table, DollarSign, TrendingDown, FolderOpen, UserCheck
+  UserCircle, MessageCircle, ChefHat, Table, DollarSign, TrendingDown, FolderOpen, UserCheck,
+  AlertTriangle, Clock, Shield
 } from "lucide-react";
 
 interface MenuGroup {
@@ -93,6 +94,13 @@ const menuGroups: MenuGroup[] = [
     items: [
       { path: "/empleados", label: "Listado de Empleados", icon: UserCircle },
       { path: "/empleados/nomina", label: "Nomina", icon: ClipboardList },
+    ]
+  },
+  {
+    label: "Usuarios",
+    icon: Shield,
+    items: [
+      { path: "/usuarios", label: "Usuarios y Roles", icon: Shield },
     ]
   },
   {
@@ -200,8 +208,17 @@ function SidebarMenu({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [fabOpen, setFabOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const { user, logout } = useAuth();
+
+  // Demo notifications
+  const notifications = [
+    { type: 'low', message: 'Presidente Regular - bajo stock (3 unidades)', icon: AlertTriangle },
+    { type: 'expiry', message: 'Brugal Extra Viejo - por vencer en 3 dias', icon: Clock },
+  ];
 
   return (
     <div className="min-h-screen bg-[#f5f6fa] text-gray-800 flex">
@@ -268,10 +285,39 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <button className="p-2 text-gray-500 hover:text-[#1ABC9C] hover:bg-emerald-50 rounded-full transition-all">
               <RefreshCw className="w-4 h-4" />
             </button>
-            <button className="p-2 text-gray-500 hover:text-[#1ABC9C] hover:bg-emerald-50 rounded-full transition-all relative">
+            <button
+              className="p-2 text-gray-500 hover:text-[#1ABC9C] hover:bg-emerald-50 rounded-full transition-all relative"
+              onClick={() => setNotifOpen(!notifOpen)}
+            >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+              {notifications.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full font-bold">{notifications.length}</span>
+              )}
             </button>
+            {/* Notification Dropdown */}
+            {notifOpen && (
+              <div className="absolute right-4 top-14 w-80 bg-white border rounded-lg shadow-lg z-50 overflow-hidden">
+                <div className="bg-[#1ABC9C] text-white px-4 py-2 text-sm font-semibold flex items-center justify-between">
+                  <span>NOTIFICACIONES</span>
+                  <button onClick={() => setNotifOpen(false)}><X className="w-4 h-4" /></button>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-gray-400 text-sm">Sin notificaciones</div>
+                  ) : (
+                    notifications.map((n: any, i: number) => {
+                      const Icon = n.icon;
+                      return (
+                        <div key={i} className={`px-4 py-2.5 border-b flex items-center gap-2 ${n.type === 'low' ? 'bg-red-50' : 'bg-amber-50'}`}>
+                          <Icon className={`w-4 h-4 flex-shrink-0 ${n.type === 'low' ? 'text-red-500' : 'text-amber-500'}`} />
+                          <span className="text-xs text-gray-700">{n.message}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
             <button className="p-2 text-gray-500 hover:text-[#1ABC9C] hover:bg-emerald-50 rounded-full transition-all">
               <HelpCircle className="w-4 h-4" />
             </button>
@@ -294,10 +340,35 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      {/* Floating Action Button */}
-      <Link to="/facturacion" className="fab-button">
-        <Plus className="w-7 h-7" />
-      </Link>
+      {/* Floating Action Button with Menu */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {fabOpen && (
+          <div className="absolute bottom-16 right-0 mb-2 w-56 bg-white border rounded-lg shadow-lg overflow-hidden">
+            <div className="px-3 py-2 bg-[#1ABC9C] text-white text-xs font-semibold">ACCESOS RAPIDOS</div>
+            <Link to="/facturacion" onClick={() => setFabOpen(false)} className="flex items-center gap-2 px-3 py-2 hover:bg-emerald-50 text-sm text-gray-700">
+              <FileText className="w-4 h-4 text-[#1ABC9C]" /> Facturacion
+            </Link>
+            <Link to="/inventario" onClick={() => setFabOpen(false)} className="flex items-center gap-2 px-3 py-2 hover:bg-emerald-50 text-sm text-gray-700">
+              <Package className="w-4 h-4 text-[#1ABC9C]" /> Nuevo Producto
+            </Link>
+            <Link to="/clientes" onClick={() => setFabOpen(false)} className="flex items-center gap-2 px-3 py-2 hover:bg-emerald-50 text-sm text-gray-700">
+              <Users className="w-4 h-4 text-[#1ABC9C]" /> Nuevo Cliente
+            </Link>
+            <Link to="/compras" onClick={() => setFabOpen(false)} className="flex items-center gap-2 px-3 py-2 hover:bg-emerald-50 text-sm text-gray-700">
+              <ShoppingCart className="w-4 h-4 text-[#1ABC9C]" /> Nueva Compra
+            </Link>
+            <Link to="/gastos" onClick={() => setFabOpen(false)} className="flex items-center gap-2 px-3 py-2 hover:bg-emerald-50 text-sm text-gray-700">
+              <TrendingDown className="w-4 h-4 text-[#1ABC9C]" /> Nuevo Gasto
+            </Link>
+          </div>
+        )}
+        <button
+          onClick={() => setFabOpen(!fabOpen)}
+          className="w-14 h-14 rounded-full bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-lg flex items-center justify-center transition-all hover:scale-105"
+        >
+          <Plus className="w-7 h-7" />
+        </button>
+      </div>
     </div>
   );
 }

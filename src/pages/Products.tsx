@@ -25,6 +25,7 @@ export default function Products() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showZeroStock, setShowZeroStock] = useState(true);
+  const [branchFilter, setBranchFilter] = useState<number | "all">("all");
   const [open, setOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<any>(null);
 
@@ -37,6 +38,7 @@ export default function Products() {
 
   const { data: categories } = trpc.product.listCategories.useQuery();
   const { data: suppliers } = trpc.supplier.list.useQuery({});
+  const { data: branches } = trpc.branch.list.useQuery();
   const { data: products, isLoading } = trpc.product.list.useQuery({
     search: search || undefined,
     categoryId: categoryFilter ? parseInt(categoryFilter) : undefined,
@@ -135,6 +137,28 @@ export default function Products() {
             <Label htmlFor="showZero" className="text-sm cursor-pointer">No incluir items con unidades en 0 (Esto no aplica para items no inventariables)</Label>
           </div>
 
+          {/* Branch Filter */}
+          <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+            <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">Ver por sucursal:</Label>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setBranchFilter("all")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${branchFilter === "all" ? "bg-[#1ABC9C] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              >
+                TODAS
+              </button>
+              {branches?.map((b: any) => (
+                <button
+                  key={b.id}
+                  onClick={() => setBranchFilter(b.id)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${branchFilter === b.id ? "bg-[#1ABC9C] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                >
+                  {b.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="space-y-1">
               <Label className="text-xs text-gray-500">Categoria</Label>
@@ -209,10 +233,23 @@ export default function Products() {
             <div className="grid gap-4 py-4">
               {/* Photo upload area */}
               <div className="flex justify-center">
-                <div className="w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100">
-                  <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                  <span className="text-xs text-gray-500">FOTOGRAFIA</span>
-                </div>
+                <label className="w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 overflow-hidden relative">
+                  {form.photoUrl ? (
+                    <img src={form.photoUrl} alt="Product" className="w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-xs text-gray-500">FOTOGRAFIA</span>
+                    </>
+                  )}
+                  <input type="file" accept="image/*" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => setForm({ ...form, photoUrl: reader.result as string });
+                    reader.readAsDataURL(file);
+                  }} />
+                </label>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
@@ -343,9 +380,18 @@ export default function Products() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {products?.map((product, idx) => {
-                const totalStock = product.totalQty || product.inventory?.reduce((sum: number, inv: any) => sum + (inv.quantity || 0), 0) || 0;
-                const isLowStock = totalStock <= (product.minStock || 0);
+                // Calculate stock based on branch filter
+                const allStock = product.totalQty || product.inventory?.reduce((sum: number, inv: any) => sum + (inv.quantity || 0), 0) || 0;
+                const branchStock = branchFilter === "all"
+                  ? allStock
+                  : product.inventory?.filter((inv: any) => inv.branchId === branchFilter).reduce((sum: number, inv: any) => sum + (inv.quantity || 0), 0) || 0;
+                const displayStock = branchFilter === "all" ? allStock : branchStock;
+                const isLowStock = displayStock <= (product.minStock || 0);
                 const nearExpiry = product.batches?.some((b: any) => b.status === 'active' && b.expiryDate && new Date(b.expiryDate) <= sevenDays && new Date(b.expiryDate) > today);
+                // Filter batches by branch if needed
+                const displayBatches = branchFilter === "all"
+                  ? product.batches
+                  : product.batches?.filter((b: any) => b.branchId === branchFilter);
                 return (
                   <tr key={product.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
                     <td className="px-2 py-3 text-center">
@@ -362,9 +408,9 @@ export default function Products() {
                     <td className="px-3 py-3 text-center">
                       <div className="space-y-0.5">
                         <span className={`text-xs font-medium px-2 py-0.5 rounded block w-fit mx-auto ${isLowStock ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                          Total: {totalStock}
+                          {branchFilter === "all" ? `Total: ${allStock}` : displayStock}
                         </span>
-                        {product.batches?.map((b: any, i: number) => (
+                        {displayBatches?.map((b: any, i: number) => (
                           <span key={i} className="text-[10px] text-gray-500 block">{b.quantity}</span>
                         ))}
                       </div>

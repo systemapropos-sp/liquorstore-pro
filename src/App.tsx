@@ -42,6 +42,7 @@ import FixedExpenses from "./pages/FixedExpenses";
 import ExpenseHistory from "./pages/ExpenseHistory";
 import InvoiceHistory from "./pages/InvoiceHistory";
 import InvoiceResponsibles from "./pages/InvoiceResponsibles";
+import Users from "./pages/Users";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -92,6 +93,7 @@ export default function App() {
               <Route path="/gastos/historico" element={<ExpenseHistory />} />
               <Route path="/facturacion/historico" element={<InvoiceHistory />} />
               <Route path="/facturacion/responsables" element={<InvoiceResponsibles />} />
+              <Route path="/usuarios" element={<Users />} />
               <Route path="/delivery" element={<Deliveries />} />
               <Route path="/clientes" element={<Customers />} />
               <Route path="/proveedores" element={<Suppliers />} />
