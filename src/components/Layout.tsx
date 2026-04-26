@@ -11,7 +11,7 @@ import {
   LogOut, Building2, ClipboardList, ChevronDown, ChevronUp,
   Plus, Search, Bell, RefreshCw, HelpCircle, X,
   ArrowLeftRight, ClipboardCheck, ListChecks, History,
-  UserCircle
+  UserCircle, MessageCircle, ChefHat, Table, DollarSign, TrendingDown, FolderOpen, UserCheck
 } from "lucide-react";
 
 interface MenuGroup {
@@ -31,6 +31,9 @@ const menuGroups: MenuGroup[] = [
     icon: FileText,
     items: [
       { path: "/facturacion", label: "Facturacion", icon: FileText },
+      { path: "/facturacion/mesas", label: "Ventas por Mesas", icon: Table },
+      { path: "/facturacion/historico", label: "Historico Facturas", icon: History },
+      { path: "/facturacion/responsables", label: "Responsables", icon: UserCheck },
       { path: "/ordenes", label: "Ordenes de Venta", icon: ClipboardList },
     ]
   },
@@ -39,6 +42,7 @@ const menuGroups: MenuGroup[] = [
     icon: Package,
     items: [
       { path: "/inventario", label: "Productos", icon: Package },
+      { path: "/inventario/categorias", label: "Categorias", icon: ClipboardList },
       { path: "/inventario/traslados", label: "Traslados", icon: ArrowLeftRight },
       { path: "/inventario/traslados-historial", label: "Historico Traslados", icon: History },
       { path: "/inventario/toma", label: "Toma de Inventario", icon: ClipboardCheck },
@@ -51,6 +55,15 @@ const menuGroups: MenuGroup[] = [
     items: [
       { path: "/compras", label: "Ingresar Compras", icon: ShoppingCart },
       { path: "/proveedores", label: "Proveedores", icon: Truck },
+    ]
+  },
+  {
+    label: "Gastos",
+    icon: TrendingDown,
+    items: [
+      { path: "/gastos", label: "Nuevo Gasto", icon: DollarSign },
+      { path: "/gastos/historico", label: "Historico Gastos", icon: History },
+      { path: "/gastos/fijos", label: "Gastos Fijos", icon: FolderOpen },
     ]
   },
   {
@@ -79,6 +92,21 @@ const menuGroups: MenuGroup[] = [
     icon: UserCircle,
     items: [
       { path: "/empleados", label: "Listado de Empleados", icon: UserCircle },
+      { path: "/empleados/nomina", label: "Nomina", icon: ClipboardList },
+    ]
+  },
+  {
+    label: "WhatsApp",
+    icon: MessageCircle,
+    items: [
+      { path: "/whatsapp", label: "Mensajes y Pedidos", icon: MessageCircle },
+    ]
+  },
+  {
+    label: "Comandas",
+    icon: ChefHat,
+    items: [
+      { path: "/comandas", label: "Pedidos de Cocina", icon: ChefHat },
     ]
   },
   {

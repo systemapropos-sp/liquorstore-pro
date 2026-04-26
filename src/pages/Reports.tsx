@@ -1,179 +1,135 @@
 import { useState } from "react";
-import { trpc } from "@/providers/trpc";
-import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  BarChart3, Search, ChevronRight, TrendingUp, ShoppingCart, Users, Package,
+  DollarSign, CreditCard, Truck, ClipboardList, FileText, Wallet
+} from "lucide-react";
 
-function formatCurrency(value: number | string) {
-  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
-    typeof value === "string" ? parseFloat(value || "0") : value
-  );
-}
-
-const COLORS = ["#1ABC9C", "#16a085", "#2ecc71", "#F59E0B", "#8B5CF6", "#10B981", "#3B82F6"];
+const reportGroups = [
+  {
+    title: "VENTAS",
+    icon: TrendingUp,
+    color: "bg-[#1ABC9C]",
+    reports: [
+      { name: "Ventas por cliente", new: true },
+      { name: "Ventas por productos" },
+      { name: "Ventas por categoria" },
+      { name: "Ventas por marca" },
+      { name: "Ventas por vendedor", new: true },
+      { name: "Ventas por forma de pago" },
+      { name: "Ventas por sucursal" },
+      { name: "Ventas por fecha" },
+      { name: "Ventas por hora" },
+      { name: "Ventas por mesa" },
+      { name: "Ventas por tipo de precio" },
+      { name: "Ventas por departamento" },
+      { name: "Ventas por ciudad" },
+      { name: "Ventas por punto de venta" },
+      { name: "Productos mas vendidos" },
+      { name: "Clientes mas frecuentes" },
+      { name: "Ranking de vendedores" },
+      { name: "Comparativo de ventas" },
+      { name: "Ventas vs Presupuesto" },
+      { name: "Tendencias de ventas" },
+    ]
+  },
+  {
+    title: "PRODUCTOS Y EXISTENCIAS",
+    icon: Package,
+    color: "bg-blue-500",
+    reports: [
+      { name: "Inventario actual" },
+      { name: "Productos con bajo stock" },
+      { name: "Productos sin stock" },
+      { name: "Productos por vencer" },
+      { name: "Rotacion de inventario" },
+      { name: "Costo de inventario" },
+      { name: "Valor de inventario" },
+      { name: "Movimientos de inventario" },
+      { name: "Historial de precios" },
+      { name: "Productos por categoria" },
+      { name: "Productos por marca" },
+      { name: "Productos por proveedor" },
+      { name: "Kardex de producto" },
+      { name: "Ajustes de inventario" },
+      { name: "Traslados entre bodegas" },
+      { name: "Toma de inventario" },
+      { name: "Diferencias de inventario" },
+    ]
+  },
+  {
+    title: "GASTOS Y COMPRAS",
+    icon: Wallet,
+    color: "bg-amber-500",
+    reports: [
+      { name: "Compras por proveedor" },
+      { name: "Compras por fecha" },
+      { name: "Historial de compras" },
+      { name: "Gastos por categoria" },
+      { name: "Gastos por fecha" },
+      { name: "Gastos fijos" },
+      { name: "Gastos variables" },
+      { name: "Comparativo gastos" },
+      { name: "Ingresos vs Egresos" },
+      { name: "Rentabilidad" },
+      { name: "Margen por producto" },
+      { name: "Costos operativos" },
+      { name: "Nomina y prestamos" },
+      { name: "Creditos de clientes" },
+      { name: "Deudas con proveedores" },
+      { name: "Cuentas por pagar" },
+      { name: "Flujo de caja" },
+    ]
+  }
+];
 
 export default function Reports() {
-  const [reportType, setReportType] = useState<"sales" | "inventory" | "delivery" | "financial">("sales");
-  const [fromDate, setFromDate] = useState(() => {
-    const d = new Date(); d.setDate(d.getDate() - 30);
-    return d.toISOString().split("T")[0];
-  });
-  const [toDate, setToDate] = useState(() => new Date().toISOString().split("T")[0]);
-
-  const salesQuery = trpc.report.salesReport.useQuery({ fromDate, toDate, groupBy: "day" }, { enabled: reportType === "sales" });
-  const inventoryQuery = trpc.report.inventoryReport.useQuery({}, { enabled: reportType === "inventory" });
-  const deliveryQuery = trpc.report.deliveryReport.useQuery({ fromDate, toDate, groupBy: "day" }, { enabled: reportType === "delivery" });
-  const financialQuery = trpc.report.financialReport.useQuery({ fromDate, toDate }, { enabled: reportType === "financial" });
-
-  const isLoading = salesQuery.isLoading || inventoryQuery.isLoading || deliveryQuery.isLoading || financialQuery.isLoading;
-
-  const tabs = [
-    { key: "sales" as const, label: "Ventas" },
-    { key: "inventory" as const, label: "Inventario" },
-    { key: "delivery" as const, label: "Delivery" },
-    { key: "financial" as const, label: "Financiero" },
-  ];
+  const [search, setSearch] = useState("");
 
   return (
-    <Layout>
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Reportes</h1>
-            <p className="text-muted-foreground">Análisis y estadísticas del negocio</p>
-          </div>
-          <Button variant="outline"><Download className="w-4 h-4 mr-2" /> Exportar</Button>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">REPORTES</h1>
+          <p className="text-sm text-gray-500 mt-1">Genera reportes detallados de tu negocio</p>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((t) => (
-            <Button key={t.key} variant={reportType === t.key ? "default" : "outline"} onClick={() => setReportType(t.key)} className={reportType === t.key ? "bg-[#1ABC9C] hover:bg-[#16a085] text-white" : ""}>
-              {t.label}
-            </Button>
-          ))}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input placeholder="Buscar reporte..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 w-64" />
         </div>
-
-        {reportType !== "inventory" && (
-          <div className="flex flex-wrap gap-3">
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Desde</label>
-              <input type="date" className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Hasta</label>
-              <input type="date" className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-            </div>
-          </div>
-        )}
-
-        {isLoading && <Skeleton className="h-80" />}
-
-        {reportType === "sales" && salesQuery.data && (
-          <Card className="border-0 shadow-sm">
-            <CardHeader><CardTitle className="text-base">Ventas por día</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={salesQuery.data.map((d: any) => ({ label: d.label, total: parseFloat(d.total || "0") }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `RD$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  <Bar dataKey="total" fill="#1ABC9C" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        )}
-
-        {reportType === "inventory" && inventoryQuery.data && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="border-0 shadow-sm">
-              <CardHeader><CardTitle className="text-base">Valor del inventario por categoría</CardTitle></CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie data={(() => {
-                      const byCat: Record<string, number> = {};
-                      inventoryQuery.data.forEach((i: any) => {
-                        byCat[i.category || "Sin categoría"] = (byCat[i.category || "Sin categoría"] || 0) + parseFloat(i.totalValue || "0");
-                      });
-                      return Object.entries(byCat).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-                    })()} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value">
-                      {(() => {
-                        const byCat: Record<string, number> = {};
-                        inventoryQuery.data.forEach((i: any) => {
-                          byCat[i.category || "Sin categoría"] = (byCat[i.category || "Sin categoría"] || 0) + parseFloat(i.totalValue || "0");
-                        });
-                        return Object.entries(byCat).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-                      })().map((_: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardHeader><CardTitle className="text-base">Productos con mayor valor</CardTitle></CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {inventoryQuery.data.sort((a: any, b: any) => parseFloat(b.totalValue || "0") - parseFloat(a.totalValue || "0")).slice(0, 10).map((i: any) => (
-                    <div key={i.productId} className="flex justify-between text-sm">
-                      <span className="truncate flex-1">{i.name}</span>
-                      <span className="font-medium">{formatCurrency(i.totalValue || 0)}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {reportType === "delivery" && deliveryQuery.data && (
-          <Card className="border-0 shadow-sm">
-            <CardHeader><CardTitle className="text-base">Deliveries por día</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={deliveryQuery.data.map((d: any) => ({ label: d.label, total: Number(d.total || 0), delivered: Number(d.delivered || 0) }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="total" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="delivered" fill="#10B981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        )}
-
-        {reportType === "financial" && financialQuery.data && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Ingresos</p>
-                <p className="text-2xl font-bold text-emerald-600">{formatCurrency(financialQuery.data.sales)}</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Egresos (Compras)</p>
-                <p className="text-2xl font-bold text-[#1ABC9C]">{formatCurrency(financialQuery.data.purchases)}</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Utilidad Bruta</p>
-                <p className="text-2xl font-bold text-blue-600">{formatCurrency(financialQuery.data.grossProfit)}</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
-    </Layout>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {reportGroups.map((group) => {
+          const Icon = group.icon;
+          const filteredReports = group.reports.filter(r => r.name.toLowerCase().includes(search.toLowerCase()));
+          return (
+            <div key={group.title} className="bg-white border rounded-lg overflow-hidden">
+              <div className={`${group.color} text-white p-4 flex items-center gap-3`}>
+                <Icon className="w-6 h-6" />
+                <h3 className="font-bold text-lg">{group.title}</h3>
+                <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full">{filteredReports.length}</span>
+              </div>
+              <div className="p-3 max-h-[600px] overflow-y-auto">
+                {filteredReports.map((report, idx) => (
+                  <button key={idx} className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border-b border-gray-100 last:border-0 text-left group">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${group.color.replace('bg-', 'bg-')}`}></div>
+                      <span className="text-sm text-gray-700 group-hover:text-[#1ABC9C]">{report.name}</span>
+                      {report.new && <span className="text-[10px] bg-red-500 text-white px-1.5 rounded ml-2">N</span>}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[#1ABC9C]" />
+                  </button>
+                ))}
+                {filteredReports.length === 0 && (
+                  <div className="text-center py-4 text-gray-400 text-sm">Sin coincidencias</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

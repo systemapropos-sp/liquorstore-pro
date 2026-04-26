@@ -1,193 +1,108 @@
 import { useState } from "react";
-import { trpc } from "@/providers/trpc";
-import { Layout } from "@/components/Layout";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Plus, ShoppingCart } from "lucide-react";
-
-function formatCurrency(value: number | string) {
-  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
-    typeof value === "string" ? parseFloat(value || "0") : value
-  );
-}
+import { trpc } from "@/providers/trpc";
+import { Plus, Search, Trash2, Save } from "lucide-react";
 
 export default function Purchases() {
-  const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<Array<{ productId: number; name: string; cost: number; quantity: number; expiryDate: string }>>([]);
-  const [form, setForm] = useState({ supplierId: "", branchId: "", paymentMethod: "cash" as const, invoiceNumber: "" });
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
-  const { data: purchases, isLoading } = trpc.purchase.list.useQuery({ page: 1, limit: 50 });
-  const { data: suppliers } = trpc.supplier.list.useQuery({});
-  const { data: branches } = trpc.branch.list.useQuery();
-  const { data: products } = trpc.product.list.useQuery({ page: 1, limit: 100 });
+  const { data: purchases = [] } = trpc.purchase.list.useQuery({});
+  const { data: suppliers = [] } = trpc.supplier.list.useQuery({});
+  const { data: products = [] } = trpc.product.list.useQuery({});
 
-  const utils = trpc.useUtils();
-  const createMutation = trpc.purchase.create.useMutation({
-    onSuccess: () => {
-      utils.purchase.list.invalidate();
-      setOpen(false);
-      setItems([]);
-      setForm({ supplierId: "", branchId: "", paymentMethod: "cash", invoiceNumber: "" });
-    },
-  });
-
-  const addItem = (productId: number, name: string, cost: number) => {
-    const existing = items.find((i) => i.productId === productId);
-    if (existing) {
-      setItems(items.map((i) => (i.productId === productId ? { ...i, quantity: i.quantity + 1 } : i)));
-    } else {
-      setItems([...items, { productId, name, cost, quantity: 1, expiryDate: "" }]);
-    }
-  };
-
-  const total = items.reduce((sum, i) => sum + i.cost * i.quantity, 0);
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <Skeleton className="h-96" />
-      </Layout>
-    );
-  }
+  const filtered = purchases.filter((p: any) =>
+    p.number?.toLowerCase().includes(search.toLowerCase()) ||
+    p.supplierName?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <Layout>
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Compras</h1>
-            <p className="text-muted-foreground">Registro de compras a proveedores</p>
-          </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Nueva Compra
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader><DialogTitle>Nueva Compra</DialogTitle></DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label>Proveedor</Label>
-                    <select className="w-full h-10 rounded-md border border-input bg-background px-3" value={form.supplierId} onChange={(e) => setForm({ ...form, supplierId: e.target.value })}>
-                      <option value="">Seleccionar</option>
-                      {suppliers?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Sucursal Destino</Label>
-                    <select className="w-full h-10 rounded-md border border-input bg-background px-3" value={form.branchId} onChange={(e) => setForm({ ...form, branchId: e.target.value })}>
-                      {branches?.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Método de Pago</Label>
-                    <select className="w-full h-10 rounded-md border border-input bg-background px-3" value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value as any })}>
-                      <option value="cash">Contado</option>
-                      <option value="credit">Crédito</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Nº Factura Proveedor</Label>
-                  <Input value={form.invoiceNumber} onChange={(e) => setForm({ ...form, invoiceNumber: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Productos</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 max-h-40 overflow-y-auto">
-                    {products?.map((p) => (
-                      <button key={p.id} onClick={() => addItem(p.id, p.name, parseFloat(p.cost || "0"))} className="text-left p-2 rounded-md border border-input hover:bg-accent text-sm transition-colors">
-                        <p className="font-medium truncate">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">Costo: {formatCurrency(p.cost || 0)}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {items.length > 0 && (
-                  <div className="border rounded-md overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-accent"><tr><th className="px-3 py-2 text-left">Producto</th><th className="px-3 py-2 text-right">Costo</th><th className="px-3 py-2 text-center">Cant</th><th className="px-3 py-2 text-right">Total</th></tr></thead>
-                      <tbody className="divide-y divide-border">
-                        {items.map((item) => (
-                          <tr key={item.productId}>
-                            <td className="px-3 py-2">{item.name}</td>
-                            <td className="px-3 py-2 text-right">{formatCurrency(item.cost)}</td>
-                            <td className="px-3 py-2 text-center"><Input type="number" min={1} value={item.quantity} onChange={(e) => setItems(items.map((i) => i.productId === item.productId ? { ...i, quantity: parseInt(e.target.value) || 1 } : i))} className="w-16 h-8 mx-auto text-center" /></td>
-                            <td className="px-3 py-2 text-right font-medium">{formatCurrency(item.cost * item.quantity)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                <div className="flex justify-end">
-                  <div className="w-48 space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-muted-foreground">Total:</span><span className="font-bold text-[#1ABC9C]">{formatCurrency(total)}</span></div>
-                  </div>
-                </div>
-                <Button onClick={() => createMutation.mutate({
-                  supplierId: parseInt(form.supplierId),
-                  branchId: parseInt(form.branchId) || (branches?.[0]?.id ?? 1),
-                  paymentMethod: form.paymentMethod,
-                  invoiceNumber: form.invoiceNumber || undefined,
-                  items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, cost: i.cost, expiryDate: i.expiryDate || undefined })),
-                })} disabled={createMutation.isPending || items.length === 0 || !form.supplierId} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white shadow-sm">
-                  {createMutation.isPending ? "Procesando..." : "Guardar Compra"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">COMPRAS</h1>
+          <p className="text-sm text-gray-500 mt-1">Registro de compras a proveedores</p>
         </div>
-
-        <div className="space-y-3">
-          {purchases?.map((p) => (
-            <Card key={p.id} className="border-0 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                      <ShoppingCart className="w-5 h-5 text-[#1ABC9C]" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{p.invoiceNumber || "Sin factura"}</p>
-                      <p className="text-xs text-muted-foreground">{p.supplier?.name} • {p.branch?.name}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{formatCurrency(p.total || 0)}</p>
-                    <Badge variant={p.status === "paid" ? "default" : "secondary"} className="text-xs mt-1">
-                      {p.status === "paid" ? "Pagada" : "Pendiente"}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  {p.items?.length || 0} productos • {p.date ? new Date(p.date).toLocaleDateString("es-DO") : ""}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {purchases?.length === 0 && (
-          <div className="text-center py-12">
-            <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No hay compras registradas</p>
-          </div>
-        )}
+        <Button className="btn-emerald" onClick={() => setShowForm(true)}>
+          <Plus className="w-4 h-4 mr-2" /> NUEVA COMPRA
+        </Button>
       </div>
-    </Layout>
+
+      <div className="flex gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input placeholder="Buscar compras..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+        </div>
+      </div>
+
+      <div className="bg-white border rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-[#1ABC9C] text-white">
+              <th className="px-3 py-2 text-left">#</th>
+              <th className="px-3 py-2 text-left">NUMERO</th>
+              <th className="px-3 py-2 text-left">PROVEEDOR</th>
+              <th className="px-3 py-2 text-right">TOTAL</th>
+              <th className="px-3 py-2 text-center">ESTADO</th>
+              <th className="px-3 py-2 text-left">FECHA</th>
+              <th className="px-3 py-2 text-center">DOC</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((p: any, i: number) => (
+              <tr key={p.id} className="border-b hover:bg-gray-50">
+                <td className="px-3 py-2">{i + 1}</td>
+                <td className="px-3 py-2 font-medium">{p.number}</td>
+                <td className="px-3 py-2">{p.supplierName}</td>
+                <td className="px-3 py-2 text-right">RD${parseFloat(p.total).toLocaleString()}</td>
+                <td className="px-3 py-2 text-center">
+                  <span className={`px-2 py-0.5 rounded text-xs ${p.status === "paid" ? "bg-emerald-100 text-emerald-700" : p.status === "received" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
+                    {p.status === "paid" ? "Pagado" : p.status === "received" ? "Recibido" : "Pendiente"}
+                  </span>
+                </td>
+                <td className="px-3 py-2">{p.date || "N/A"}</td>
+                <td className="px-3 py-2 text-center">{p.documentUrl ? <span className="text-blue-500 text-xs">Adjunto</span> : "—"}</td>
+              </tr>
+            ))}
+            {filtered.length === 0 && <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-400">Sin compras registradas</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
+          <div className="bg-white rounded-lg w-full max-w-xl max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-4">Nueva Compra</h2>
+            <p className="text-sm text-gray-500 mb-4">Selecciona proveedor y productos para registrar la compra.</p>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium block mb-1">Proveedor</label>
+                <select className="w-full border rounded-md px-3 py-2 text-sm">
+                  <option>Seleccionar proveedor</option>
+                  {suppliers.map((s: any) => <option key={s.id} value={s.id}>{s.tradeName}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium block mb-1">Producto</label>
+                <select className="w-full border rounded-md px-3 py-2 text-sm">
+                  <option>Seleccionar producto</option>
+                  {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium block mb-1">Documento de factura (PDF/Imagen)</label>
+                <Input type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                <p className="text-xs text-gray-400 mt-1">Formatos permitidos: JPG, JPEG, PNG, PDF</p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button className="flex-1 btn-emerald"><Save className="w-4 h-4 mr-2" /> GUARDAR COMPRA</Button>
+                <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

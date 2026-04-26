@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
-import { Save, Building2, Percent } from "lucide-react";
+import { Save, Building2, Percent, Table, Plus, Trash2, Edit2 } from "lucide-react";
 
 export default function SettingsPage() {
   const { data: business, isLoading: bLoading } = trpc.settings.getBusiness.useQuery();
@@ -121,11 +121,116 @@ export default function SettingsPage() {
               minDeliveryAmount: setForm.minDeliveryAmount || undefined,
               prepTimeMinutes: setForm.prepTimeMinutes ? parseInt(setForm.prepTimeMinutes) : undefined,
             })} disabled={updateSet.isPending} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white">
-              <Save className="w-4 h-4 mr-2" /> Guardar Configuración
+              <Save className="w-4 h-4 mr-2" /> Guardar Configuracion
             </Button>
           </CardContent>
         </Card>
+
+        <TableSettingsCard />
       </div>
     </Layout>
+  );
+}
+
+function TableSettingsCard() {
+  const { data: tables = [], refetch } = trpc.table.list.useQuery({});
+  const createTable = trpc.table.create.useMutation({ onSuccess: () => refetch() });
+  const updateTable = trpc.table.update.useMutation({ onSuccess: () => refetch() });
+  const deleteTable = trpc.table.delete.useMutation({ onSuccess: () => refetch() });
+
+  const [newName, setNewName] = useState("");
+  const [newCapacity, setNewCapacity] = useState("4");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editCapacity, setEditCapacity] = useState("");
+
+  function handleAdd() {
+    if (!newName.trim()) return;
+    createTable.mutate({
+      name: newName,
+      capacity: parseInt(newCapacity) || 4,
+      branchId: 1
+    });
+    setNewName("");
+    setNewCapacity("4");
+  }
+
+  function handleEdit(table: any) {
+    setEditingId(table.id);
+    setEditName(table.name);
+    setEditCapacity(String(table.capacity));
+  }
+
+  function handleSaveEdit() {
+    if (!editingId) return;
+    updateTable.mutate({
+      id: editingId,
+      name: editName,
+      capacity: parseInt(editCapacity) || 4
+    });
+    setEditingId(null);
+  }
+
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardHeader className="flex flex-row items-center gap-2">
+        <Table className="w-5 h-5 text-[#1ABC9C]" />
+        <CardTitle className="text-base">Configuracion de Mesas</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex gap-3 mb-4">
+          <Input
+            placeholder="Nombre de la mesa (ej: Mesa 1, Barra 2, Terraza A)"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            className="flex-1"
+          />
+          <Input
+            type="number"
+            placeholder="Capacidad"
+            value={newCapacity}
+            onChange={e => setNewCapacity(e.target.value)}
+            className="w-24"
+          />
+          <Button onClick={handleAdd} disabled={createTable.isPending} className="bg-[#1ABC9C] hover:bg-[#16a085] text-white">
+            <Plus className="w-4 h-4 mr-1" /> Agregar
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {tables.map((t: any) => (
+            <div key={t.id} className="border rounded-lg p-3 flex items-center justify-between">
+              {editingId === t.id ? (
+                <div className="flex-1 space-y-2">
+                  <Input value={editName} onChange={e => setEditName(e.target.value)} className="text-sm" />
+                  <div className="flex gap-2">
+                    <Input type="number" value={editCapacity} onChange={e => setEditCapacity(e.target.value)} className="w-20 text-sm" />
+                    <Button size="sm" className="bg-[#1ABC9C] hover:bg-[#16a085] text-white h-8" onClick={handleSaveEdit}><Save className="w-3 h-3" /></Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <p className="font-medium text-gray-800">{t.name}</p>
+                    <p className="text-xs text-gray-500">Capacidad: {t.capacity} personas</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleEdit(t)}>
+                      <Edit2 className="w-4 h-4 text-gray-400" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => deleteTable.mutate(t.id)}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+        {tables.length === 0 && (
+          <div className="text-center py-6 text-gray-400">No hay mesas configuradas</div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

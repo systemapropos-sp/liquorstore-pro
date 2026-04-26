@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { trpc } from "@/providers/trpc";
 
 export function useAuth() {
@@ -23,7 +23,7 @@ export function useAuth() {
           businessId: (meQuery.data as any).businessId || 1,
         }
       : null,
-    isLoading: meQuery.isLoading,
+    isLoading: false,
     logout,
   };
 }

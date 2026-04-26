@@ -1,5 +1,5 @@
 // Base de datos local en localStorage para modo demo
-const DB_KEY = 'liquorstore_db_v2';
+const DB_KEY = 'liquorstore_db_v3';
 
 export interface MockBusiness {
   id: number;
@@ -419,6 +419,263 @@ export interface MockAdjustment {
   userName?: string;
 }
 
+
+export interface MockPayrollPeriod {
+  id: number;
+  businessId: number;
+  periodType: 'quincena' | 'mensual';
+  startDate: string;
+  endDate: string;
+  status: 'draft' | 'processed' | 'paid';
+  totalAmount: string;
+  notes: string;
+  createdAt: string;
+  paidAt?: string;
+}
+
+export interface MockPayrollItem {
+  id: number;
+  payrollId: number;
+  employeeId: number;
+  employeeName: string;
+  baseSalary: string;
+  overtime: string;
+  bonus: string;
+  deductions: string;
+  loanDeduction: string;
+  netPay: string;
+  paymentMethod: 'cash' | 'transfer' | 'check';
+  status: 'pending' | 'paid';
+  paymentDate?: string;
+  notes: string;
+}
+
+export interface MockTable {
+  id: number;
+  businessId: number;
+  branchId: number;
+  name: string;
+  capacity: number;
+  status: 'free' | 'occupied' | 'reserved';
+  currentOrderId?: number;
+  orderTotal: string;
+  createdAt: string;
+}
+
+export interface MockTableOrderItem {
+  id: number;
+  tableId: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  price: string;
+  total: string;
+  notes: string;
+  status: 'pending' | 'preparing' | 'ready' | 'served';
+  addedAt: string;
+}
+
+export interface MockComanda {
+  id: number;
+  number: string;
+  businessId: number;
+  branchId: number;
+  tableId?: number;
+  tableName?: string;
+  customerName?: string;
+  customerPhone?: string;
+  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  items: MockComandaItem[];
+  subtotal: string;
+  tax: string;
+  total: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+  userName: string;
+}
+
+export interface MockComandaItem {
+  id: number;
+  comandaId: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  price: string;
+  total: string;
+  notes: string;
+  status: 'pending' | 'preparing' | 'ready' | 'served';
+}
+
+export interface MockWhatsAppSession {
+  id: number;
+  businessId: number;
+  phone: string;
+  name: string;
+  status: 'connected' | 'disconnected' | 'connecting';
+  qrCode?: string;
+  lastActivity?: string;
+  createdAt: string;
+}
+
+export interface MockWhatsAppMessage {
+  id: number;
+  sessionId: number;
+  phone: string;
+  contactName?: string;
+  type: 'received' | 'sent';
+  content: string;
+  templateName?: string;
+  status: 'unread' | 'read' | 'sent' | 'delivered' | 'failed';
+  createdAt: string;
+}
+
+export interface MockWhatsAppTemplate {
+  id: number;
+  businessId: number;
+  name: string;
+  content: string;
+  variables: string;
+  active: boolean;
+}
+
+
+export interface MockBank {
+  id: number;
+  businessId: number;
+  name: string;
+  accountHolder: string;
+  accountNumber: string;
+  accountType: string;
+  balance: string;
+  active: boolean;
+}
+
+export interface MockBankTransaction {
+  id: number;
+  bankId: number;
+  type: 'income' | 'expense' | 'transfer';
+  description: string;
+  amount: string;
+  balanceBefore: string;
+  balanceAfter: string;
+  operation: string;
+  personName: string;
+  createdAt: string;
+  userName: string;
+}
+
+export interface MockCashRegister {
+  id: number;
+  businessId: number;
+  branchId: number;
+  name: string;
+  serial: string;
+  location: string;
+  status: 'open' | 'closed';
+  baseAmount: string;
+  currentAmount: string;
+  openedAt?: string;
+  closedAt?: string;
+}
+
+export interface MockUser {
+  id: number;
+  businessId: number;
+  fullName: string;
+  email: string;
+  password: string;
+  type: 'admin' | 'user';
+  branchId?: number;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface MockExpenseConcept {
+  id: number;
+  businessId: number;
+  type: 'income' | 'expense';
+  code: string;
+  concept: string;
+}
+
+export interface MockResolution {
+  id: number;
+  businessId: number;
+  type: 'equivalent' | 'support' | 'electronic' | 'pos';
+  prefix: string;
+  resolution: string;
+  startDate: string;
+  endDate: string;
+  startNumber: string;
+  endNumber: string;
+  currentNumber: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface MockTaxConfig {
+  id: number;
+  businessId: number;
+  name: string;
+  rate: number;
+  type: string;
+  active: boolean;
+  isDefault: boolean;
+}
+
+export interface MockEmailConfig {
+  id: number;
+  businessId: number;
+  emailType: string;
+  host: string;
+  port: string;
+  email: string;
+  password: string;
+  encryption: string;
+}
+
+export interface MockBarcodeConfig {
+  id: number;
+  businessId: number;
+  columns: 2 | 3;
+  showPrice: boolean;
+  showCode: boolean;
+  showName: boolean;
+}
+
+export interface MockPointsConfig {
+  id: number;
+  businessId: number;
+  pointValue: string;
+  pointsPerAmount: string;
+  minRedeem: number;
+  active: boolean;
+}
+
+export interface MockPermissionCategory {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+}
+
+export interface MockPrintConfig {
+  id: number;
+  businessId: number;
+  name: string;
+  value: string;
+  active: boolean;
+}
+
+export interface MockMainCash {
+  id: number;
+  businessId: number;
+  name: string;
+  holder: string;
+  balance: string;
+}
+
 export interface MockDB {
   businesses: MockBusiness[];
   branches: MockBranch[];
@@ -430,6 +687,8 @@ export interface MockDB {
   suppliers: MockSupplier[];
   employees: MockEmployee[];
   employeeLoans: MockEmployeeLoan[];
+  payrollPeriods: MockPayrollPeriod[];
+  payrollItems: MockPayrollItem[];
   invoices: MockInvoice[];
   invoiceItems: MockInvoiceItem[];
   orders: MockOrder[];
@@ -440,6 +699,27 @@ export interface MockDB {
   transfers: MockTransfer[];
   stockCounts: MockStockCount[];
   adjustments: MockAdjustment[];
+  tables: MockTable[];
+  tableOrderItems: MockTableOrderItem[];
+  comandas: MockComanda[];
+  whatsAppSessions: MockWhatsAppSession[];
+  whatsAppMessages: MockWhatsAppMessage[];
+  whatsAppTemplates: MockWhatsAppTemplate[];
+  banks: MockBank[];
+  bankTransactions: MockBankTransaction[];
+  cashRegisters: MockCashRegister[];
+  users: MockUser[];
+  expenseConcepts: MockExpenseConcept[];
+  resolutions: MockResolution[];
+  taxConfigs: MockTaxConfig[];
+  emailConfigs: MockEmailConfig[];
+  barcodeConfigs: MockBarcodeConfig[];
+  pointsConfigs: MockPointsConfig[];
+  permissionCategories: MockPermissionCategory[];
+  printConfigs: MockPrintConfig[];
+  mainCash: MockMainCash[];
+  expenses: MockExpense[];
+  fixedExpenses: MockFixedExpense[];
   settings: MockBusinessSettings;
 }
 
@@ -456,16 +736,16 @@ const defaultData: MockDB = {
     { id: 2, businessId: 1, name: 'Bodega Central', address: 'Av. Industrial #45', phone: '809-555-0102', city: 'Santo Domingo', active: true, isWarehouse: true }
   ],
   categories: [
-    { id: 1, businessId: 1, name: 'Cerveza Nacional', type: 'beer' },
-    { id: 2, businessId: 1, name: 'Cerveza Importada', type: 'beer' },
-    { id: 3, businessId: 1, name: 'Ron Nacional', type: 'rum' },
-    { id: 4, businessId: 1, name: 'Ron Importado', type: 'rum' },
-    { id: 5, businessId: 1, name: 'Vino Tinto', type: 'wine' },
-    { id: 6, businessId: 1, name: 'Vino Blanco', type: 'wine' },
-    { id: 7, businessId: 1, name: 'Whisky', type: 'whisky' },
-    { id: 8, businessId: 1, name: 'Vodka', type: 'vodka' },
-    { id: 9, businessId: 1, name: 'Tequila', type: 'tequila' },
-    { id: 10, businessId: 1, name: 'Otros', type: 'other' }
+    { id: 1, businessId: 1, name: 'Cerveza Nacional', type: 'beer', active: true },
+    { id: 2, businessId: 1, name: 'Cerveza Importada', type: 'beer', active: true },
+    { id: 3, businessId: 1, name: 'Ron Nacional', type: 'rum', active: true },
+    { id: 4, businessId: 1, name: 'Ron Importado', type: 'rum', active: true },
+    { id: 5, businessId: 1, name: 'Vino Tinto', type: 'wine', active: true },
+    { id: 6, businessId: 1, name: 'Vino Blanco', type: 'wine', active: true },
+    { id: 7, businessId: 1, name: 'Whisky', type: 'whisky', active: true },
+    { id: 8, businessId: 1, name: 'Vodka', type: 'vodka', active: true },
+    { id: 9, businessId: 1, name: 'Tequila', type: 'tequila', active: true },
+    { id: 10, businessId: 1, name: 'Otros', type: 'other', active: true }
   ],
   products: [
     { id: 1, businessId: 1, code: 'CERVE-001', barcode: '746010000001', name: 'Presidente Regular 355ml', description: 'Cerveza lager dominicana', categoryId: 1, subcategory: 'Nacional', brand: 'CND', cost: '45.00', price: '65.00', price2: '62.00', price3: '60.00', margin: '44.44', unit: 'botella', taxType: 'taxed', taxRate: '18.00', minStock: 24, maxStock: 500, supplierId: 1, photoUrl: '', isInventoriable: true, isBillable: true, isFavorite: true, active: true, isCombo: false, createdAt: '2024-01-15' },
@@ -512,10 +792,10 @@ const defaultData: MockDB = {
     { id: 8, businessId: 1, name: 'Roberto Diaz', personType: 'natural', idType: 'cedula', idNumber: '007-7890123-4', firstName: 'Roberto', middleName: 'Alejandro', lastName: 'Diaz', secondLastName: 'Castro', phone: '809-555-1007', phone2: '', email: '', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', zone: '', neighborhood: '', address: 'Calle Pellerano Alfau #5', birthDate: '', creditLimit: '0.00', creditOverdueLimit: '0.00', type: 'cash', tags: '', totalPurchased: '800.00', photoUrl: '', active: true }
   ],
   suppliers: [
-    { id: 1, businessId: 1, name: 'Cerveceria Nacional Dominicana', personType: 'juridica', documentType: 'rnc', rnc: '101-00001-1', dv: '', tradeName: 'CND', legalName: 'Cerveceria Nacional Dominicana S.A.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Juan Perez', phone: '809-555-0201', phone2: '', email: 'ventas@cnd.com.do', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Av. Duarte #100', regime: 'General', taxResponsibility: 'Gran Contribuyente', bankName: 'Banco Popular', bankAccount: '1234567890', accountHolder: 'Cerveceria Nacional Dominicana S.A.', advancePayment: '0.00', creditDays: 30, active: true },
-    { id: 2, businessId: 1, name: 'Distribuidora Caribe', personType: 'juridica', documentType: 'rnc', rnc: '101-00002-2', dv: '', tradeName: 'Caribe Dist', legalName: 'Distribuidora Caribe S.R.L.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Maria Garcia', phone: '809-555-0202', phone2: '', email: 'info@caribedist.com', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Calle del Sol #45', regime: 'General', taxResponsibility: 'Pequeno Contribuyente', bankName: 'BHD Leon', bankAccount: '0987654321', accountHolder: 'Distribuidora Caribe S.R.L.', advancePayment: '0.00', creditDays: 15, active: true },
-    { id: 3, businessId: 1, name: 'Vinos del Mundo', personType: 'juridica', documentType: 'rnc', rnc: '101-00003-3', dv: '', tradeName: 'VDM', legalName: 'Vinos del Mundo S.A.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Carlos Lopez', phone: '809-555-0203', phone2: '', email: 'ventas@vinosdelmundo.com', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Av. Winston Churchill #200', regime: 'General', taxResponsibility: 'Gran Contribuyente', bankName: 'Scotiabank', bankAccount: '1122334455', accountHolder: 'Vinos del Mundo S.A.', advancePayment: '0.00', creditDays: 45, active: true },
-    { id: 4, businessId: 1, name: 'Importadora Global', personType: 'juridica', documentType: 'rnc', rnc: '101-00004-4', dv: '', tradeName: 'Importadora Global', legalName: 'Importadora Global S.A.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Ana Martinez', phone: '809-555-0204', phone2: '', email: 'import@global.com', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Zona Industrial Hainamosa', regime: 'General', taxResponsibility: 'Gran Contribuyente', bankName: 'Banco Popular', bankAccount: '5566778899', accountHolder: 'Importadora Global S.A.', advancePayment: '0.00', creditDays: 60, active: true }
+    { id: 1, businessId: 1, name: 'Cerveceria Nacional Dominicana', personType: 'juridica', documentType: 'nit', rnc: '101-00001-1', dv: '', tradeName: 'CND', legalName: 'Cerveceria Nacional Dominicana S.A.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Juan Perez', phone: '809-555-0201', phone2: '', email: 'ventas@cnd.com.do', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Av. Duarte #100', regime: 'General', taxResponsibility: 'Gran Contribuyente', bankName: 'Banco Popular', bankAccount: '1234567890', accountHolder: 'Cerveceria Nacional Dominicana S.A.', advancePayment: '0.00', creditDays: 30, active: true },
+    { id: 2, businessId: 1, name: 'Distribuidora Caribe', personType: 'juridica', documentType: 'nit', rnc: '101-00002-2', dv: '', tradeName: 'Caribe Dist', legalName: 'Distribuidora Caribe S.R.L.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Maria Garcia', phone: '809-555-0202', phone2: '', email: 'info@caribedist.com', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Calle del Sol #45', regime: 'General', taxResponsibility: 'Pequeno Contribuyente', bankName: 'BHD Leon', bankAccount: '0987654321', accountHolder: 'Distribuidora Caribe S.R.L.', advancePayment: '0.00', creditDays: 15, active: true },
+    { id: 3, businessId: 1, name: 'Vinos del Mundo', personType: 'juridica', documentType: 'nit', rnc: '101-00003-3', dv: '', tradeName: 'VDM', legalName: 'Vinos del Mundo S.A.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Carlos Lopez', phone: '809-555-0203', phone2: '', email: 'ventas@vinosdelmundo.com', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Av. Winston Churchill #200', regime: 'General', taxResponsibility: 'Gran Contribuyente', bankName: 'Scotiabank', bankAccount: '1122334455', accountHolder: 'Vinos del Mundo S.A.', advancePayment: '0.00', creditDays: 45, active: true },
+    { id: 4, businessId: 1, name: 'Importadora Global', personType: 'juridica', documentType: 'nit', rnc: '101-00004-4', dv: '', tradeName: 'Importadora Global', legalName: 'Importadora Global S.A.', firstName: '', middleName: '', lastName: '', secondLastName: '', contact: 'Ana Martinez', phone: '809-555-0204', phone2: '', email: 'import@global.com', country: 'Republica Dominicana', department: 'Santo Domingo', city: 'Santo Domingo', address: 'Zona Industrial Hainamosa', regime: 'General', taxResponsibility: 'Gran Contribuyente', bankName: 'Banco Popular', bankAccount: '5566778899', accountHolder: 'Importadora Global S.A.', advancePayment: '0.00', creditDays: 60, active: true }
   ],
   employees: [
     { id: 1, businessId: 1, firstName: 'Carlos', middleName: 'Manuel', lastName: 'Rodriguez', secondLastName: 'Santos', idNumber: '001-1111111-1', phone: '809-555-3001', email: 'carlos@licorera.com', address: 'Calle Principal #50', city: 'Santo Domingo', position: 'Gerente General', branchId: 1, hireDate: '2024-01-15', salary: '45000.00', photoUrl: '', active: true },
@@ -589,7 +869,167 @@ const defaultData: MockDB = {
     { id: 5, productId: 13, productName: 'Absolut Vodka 750ml', productCode: 'VODK-001', branchId: 1, branchName: 'Sucursal Principal', previousQty: 7, adjustedQty: 5, currentQty: 12, reason: 'Compra a proveedor', type: 'increase', source: 'purchase', notes: 'Recepcion de mercancia', createdAt: '2026-04-20T09:00:00Z', businessId: 1, userName: 'Admin Demo' },
     { id: 6, productId: 16, productName: 'Six-Pack Presidente 355ml', productCode: 'CERVE-005', branchId: 1, branchName: 'Sucursal Principal', previousQty: 10, adjustedQty: 5, currentQty: 15, reason: 'Compra a proveedor', type: 'increase', source: 'purchase', notes: 'Recepcion de mercancia', createdAt: '2026-04-20T09:00:00Z', businessId: 1, userName: 'Admin Demo' },
   ],
-  settings: { id: 1, businessId: 1, invoicePrefix: 'A-', invoiceNextNumber: 7, orderPrefix: 'COT-', orderNextNumber: 6, purchasePrefix: 'COM-', purchaseNextNumber: 3, transferPrefix: 'TR-', transferNextNumber: 1, creditInterestRate: '2.00', creditGraceDays: 3, expiryAlertDays: 7 }
+  settings: { id: 1, businessId: 1, invoicePrefix: 'A-', invoiceNextNumber: 7, orderPrefix: 'COT-', orderNextNumber: 6, purchasePrefix: 'COM-', purchaseNextNumber: 3, transferPrefix: 'TR-', transferNextNumber: 1, creditInterestRate: '2.00', creditGraceDays: 3, expiryAlertDays: 7 },
+  banks: [
+    { id: 1, businessId: 1, name: 'Banco Popular', accountHolder: 'SMART LIQUOR STORE', accountNumber: '1234567890', accountType: 'Ahorros', balance: '1841108.46', active: true },
+    { id: 2, businessId: 1, name: 'Banco BHD', accountHolder: 'SMART LIQUOR STORE', accountNumber: '0987654321', accountType: 'Corriente', balance: '500000.00', active: true }
+  ],
+  bankTransactions: [
+    { id: 1, bankId: 1, type: 'expense', description: 'Compra N° 649 POS', amount: '6600.24', balanceBefore: '1847708.70', balanceAfter: '1841108.46', operation: 'Compra', personName: 'Proveedor POS', createdAt: '2026-04-25T18:00:00Z', userName: 'JOSE DEVAREZ' },
+    { id: 2, bankId: 1, type: 'transfer', description: 'Transferencia a Caja 2', amount: '5000.00', balanceBefore: '1852708.70', balanceAfter: '1847708.70', operation: 'Caja Abierta', personName: 'Caja 2', createdAt: '2026-04-25T16:00:00Z', userName: 'JOSE DEVAREZ' }
+  ],
+  cashRegisters: [
+    { id: 1, businessId: 1, branchId: 1, name: 'CAJA 1', serial: '1', location: 'Recepcion', status: 'open', baseAmount: '5000.00', currentAmount: '15700.00', openedAt: '2026-04-25T08:00:00Z' },
+    { id: 2, businessId: 1, branchId: 1, name: 'CAJA 2', serial: '2', location: 'Barra', status: 'closed', baseAmount: '3000.00', currentAmount: '3000.00', openedAt: '2026-04-24T08:00:00Z', closedAt: '2026-04-24T20:00:00Z' }
+  ],
+  users: [
+    { id: 1, businessId: 1, fullName: 'ALEJANDRO ACOSTA', email: 'ALEJANDRO@MASCONTROL.COM', password: 'admin123', type: 'admin', active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 2, businessId: 1, fullName: 'JOSE DEVAREZ', email: 'SMARTLIQUORSTORE@MASCONTROL.COM', password: 'admin123', type: 'admin', active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 3, businessId: 1, fullName: 'smart billar', email: 'smartbillar@MASCONTROL.COM', password: 'user123', type: 'user', branchId: 1, active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 4, businessId: 1, fullName: 'VENTA DE VAPE', email: 'VENTADEVAPE@MASCONTROL.COM', password: 'user123', type: 'user', active: true, createdAt: '2026-01-01T00:00:00Z' },
+    { id: 5, businessId: 1, fullName: 'YASEL VAPES', email: 'YASELVAPES@MASCONTROL.COM', password: 'user123', type: 'user', active: true, createdAt: '2026-01-01T00:00:00Z' }
+  ],
+  expenseConcepts: [
+    { id: 1, businessId: 1, type: 'income', code: '0001', concept: 'Ventas' },
+    { id: 2, businessId: 1, type: 'income', code: '0002', concept: 'Ventas servicios' },
+    { id: 3, businessId: 1, type: 'income', code: '0003', concept: 'Ventas servicios sin facturar' },
+    { id: 4, businessId: 1, type: 'income', code: '0004', concept: 'Notas Debito, devolucion de dinero por parte del proveedor' },
+    { id: 5, businessId: 1, type: 'income', code: '0005', concept: 'Deudas De clientes' },
+    { id: 6, businessId: 1, type: 'income', code: '0006', concept: 'Abonos de creditos de nomina' },
+    { id: 7, businessId: 1, type: 'income', code: '0007', concept: 'Otros ingresos' },
+    { id: 8, businessId: 1, type: 'expense', code: '0008', concept: 'Compras' },
+    { id: 9, businessId: 1, type: 'expense', code: '0009', concept: 'Compras inventario inicial' },
+    { id: 10, businessId: 1, type: 'expense', code: '0010', concept: 'Gastos' },
+    { id: 11, businessId: 1, type: 'expense', code: '0011', concept: 'Arriendo' },
+    { id: 12, businessId: 1, type: 'expense', code: '0012', concept: 'Documentos equivalentes' },
+    { id: 13, businessId: 1, type: 'expense', code: '0013', concept: 'Deudas a proveedores' },
+    { id: 14, businessId: 1, type: 'expense', code: '0014', concept: 'Nomina' },
+    { id: 15, businessId: 1, type: 'expense', code: '0015', concept: 'Creditos de nomina' },
+    { id: 16, businessId: 1, type: 'expense', code: '0016', concept: 'Nomina auxilio de transporte' },
+    { id: 17, businessId: 1, type: 'expense', code: '0017', concept: 'Nomina adicionales' }
+  ],
+  resolutions: [
+    { id: 1, businessId: 1, type: 'equivalent', prefix: 'FACT', resolution: '18763008356001', startDate: '2024-10-31', endDate: '2026-10-31', startNumber: '1', endNumber: '100000000', currentNumber: '56827', active: true, createdAt: '2024-10-31T00:00:00Z' }
+  ],
+  taxConfigs: [
+    { id: 1, businessId: 1, name: 'ITBIS', rate: 18, type: 'ITBIS', active: true, isDefault: true },
+    { id: 2, businessId: 1, name: 'null', rate: 20, type: 'null', active: true, isDefault: false }
+  ],
+  emailConfigs: [
+    { id: 1, businessId: 1, emailType: 'Gmail', host: 'smtp.gmail.com', port: '587', email: 'ejemplo@gmail.com', password: 'xxxx', encryption: 'tls' }
+  ],
+  barcodeConfigs: [
+    { id: 1, businessId: 1, columns: 3, showPrice: true, showCode: true, showName: true }
+  ],
+  pointsConfigs: [
+    { id: 1, businessId: 1, pointValue: '10.00', pointsPerAmount: '1000', minRedeem: 100, active: true }
+  ],
+  permissionCategories: [
+    { id: 1, name: 'Cajas', description: 'Permisos de cajas', active: true },
+    { id: 2, name: 'Celulares', description: 'Permisos de celulares', active: false },
+    { id: 3, name: 'Clientes', description: 'Permisos de clientes', active: true },
+    { id: 4, name: 'Compras', description: 'Permisos de compras', active: true },
+    { id: 5, name: 'Creditos', description: 'Permisos de creditos', active: true },
+    { id: 6, name: 'Facturacion', description: 'Permisos de facturacion', active: true },
+    { id: 7, name: 'General', description: 'Permisos generales', active: true },
+    { id: 8, name: 'Impresiones', description: 'Permisos de impresiones', active: true },
+    { id: 9, name: 'Ingresos - Egresos', description: 'Permisos de ingresos y egresos', active: true },
+    { id: 10, name: 'Inventario', description: 'Permisos de inventario', active: true },
+    { id: 11, name: 'Ordenes de Venta', description: 'Permisos de ordenes', active: true },
+    { id: 12, name: 'Proveedores', description: 'Permisos de proveedores', active: true },
+    { id: 13, name: 'Reportes', description: 'Permisos de reportes', active: true },
+    { id: 14, name: 'Restaurantes', description: 'Permisos de restaurantes', active: true },
+    { id: 15, name: 'Tienda Multi', description: 'Permisos de tienda multi', active: true }
+  ],
+  printConfigs: [
+    { id: 1, businessId: 1, name: 'Nombre empresa', value: '1', active: true },
+    { id: 2, businessId: 1, name: 'NIT', value: '2', active: true },
+    { id: 3, businessId: 1, name: 'Direccion', value: '3', active: true },
+    { id: 4, businessId: 1, name: 'Telefono', value: '5', active: true },
+    { id: 5, businessId: 1, name: 'Logo', value: '6', active: true },
+    { id: 6, businessId: 1, name: 'Numero factura', value: '7', active: true },
+    { id: 7, businessId: 1, name: 'Caja', value: '9', active: true },
+    { id: 8, businessId: 1, name: 'Vendedor', value: '10', active: true },
+    { id: 9, businessId: 1, name: 'Cliente info total', value: '11', active: true },
+    { id: 10, businessId: 1, name: 'Forma de pago', value: '12', active: true },
+    { id: 11, businessId: 1, name: 'Responsabilidad empresa', value: '13', active: true },
+    { id: 12, businessId: 1, name: 'Terminos y condiciones', value: '14', active: true },
+    { id: 13, businessId: 1, name: 'Texto informativo', value: '15', active: true },
+    { id: 14, businessId: 1, name: 'Impuestos', value: '18', active: true }
+  ],
+  expenses: [
+    { id: 1, businessId: 1, branchId: 1, conceptId: 10, conceptName: 'Gastos', type: 'expense', amount: '2500.00', description: 'Compra de material de limpieza', documentUrl: '', date: '2026-04-20', userName: 'Admin Demo', createdAt: '2026-04-20T10:00:00Z' },
+    { id: 2, businessId: 1, branchId: 1, conceptId: 11, conceptName: 'Arriendo', type: 'expense', amount: '35000.00', description: 'Pago arriendo local', documentUrl: '', date: '2026-04-01', userName: 'Admin Demo', createdAt: '2026-04-01T08:00:00Z' },
+    { id: 3, businessId: 1, branchId: 1, conceptId: 1, conceptName: 'Ventas', type: 'income', amount: '15000.00', description: 'Ingreso por venta de equipos', documentUrl: '', date: '2026-04-22', userName: 'Admin Demo', createdAt: '2026-04-22T14:00:00Z' },
+    { id: 4, businessId: 1, branchId: 1, conceptId: 14, conceptName: 'Nomina', type: 'expense', amount: '52500.00', description: 'Pago nomina quincenal', documentUrl: '', date: '2026-04-15', userName: 'Admin Demo', createdAt: '2026-04-15T10:00:00Z' }
+  ],
+  fixedExpenses: [
+    { id: 1, businessId: 1, name: 'Arriendo Local', amount: '35000.00', frequency: 'monthly', dayOfPayment: 1, description: 'Arriendo mensual del local comercial', active: true, nextPaymentDate: '2026-05-01', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 2, businessId: 1, name: 'Internet y Telefono', amount: '4500.00', frequency: 'monthly', dayOfPayment: 5, description: 'Servicio de internet y telefonia', active: true, nextPaymentDate: '2026-05-05', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 3, businessId: 1, name: 'Seguridad', amount: '8000.00', frequency: 'monthly', dayOfPayment: 15, description: 'Servicio de vigilancia privada', active: true, nextPaymentDate: '2026-05-15', createdAt: '2026-01-01T00:00:00Z' }
+  ],
+  mainCash: [
+    { id: 1, businessId: 1, name: 'CAJA MAYOR', holder: 'SMART LIQUOR STORE', balance: '1841108.46' }
+  ],
+  payrollPeriods: [
+    { id: 1, businessId: 1, periodType: 'quincena', startDate: '2026-04-01', endDate: '2026-04-15', status: 'paid', totalAmount: '103500.00', notes: 'Primera quincena abril 2026', createdAt: '2026-04-15T10:00:00Z', paidAt: '2026-04-15T12:00:00Z' },
+    { id: 2, businessId: 1, periodType: 'quincena', startDate: '2026-04-16', endDate: '2026-04-30', status: 'processed', totalAmount: '103500.00', notes: 'Segunda quincena abril 2026', createdAt: '2026-04-30T10:00:00Z' },
+    { id: 3, businessId: 1, periodType: 'mensual', startDate: '2026-03-01', endDate: '2026-03-31', status: 'paid', totalAmount: '105000.00', notes: 'Nomina marzo 2026', createdAt: '2026-03-31T10:00:00Z', paidAt: '2026-03-31T14:00:00Z' }
+  ],
+  payrollItems: [
+    { id: 1, payrollId: 1, employeeId: 1, employeeName: 'Carlos Manuel Rodriguez Santos', baseSalary: '22500.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '0.00', netPay: '22500.00', paymentMethod: 'transfer', status: 'paid', paymentDate: '2026-04-15', notes: '' },
+    { id: 2, payrollId: 1, employeeId: 2, employeeName: 'Maria Elena Fernandez Lopez', baseSalary: '11000.00', overtime: '500.00', bonus: '0.00', deductions: '0.00', loanDeduction: '1000.00', netPay: '10500.00', paymentMethod: 'transfer', status: 'paid', paymentDate: '2026-04-15', notes: 'Deduccion prestamo' },
+    { id: 3, payrollId: 1, employeeId: 3, employeeName: 'Jose Antonio Garcia Perez', baseSalary: '9000.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '0.00', netPay: '9000.00', paymentMethod: 'cash', status: 'paid', paymentDate: '2026-04-15', notes: '' },
+    { id: 4, payrollId: 1, employeeId: 4, employeeName: 'Laura Beatriz Martinez Diaz', baseSalary: '10000.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '0.00', netPay: '10000.00', paymentMethod: 'transfer', status: 'paid', paymentDate: '2026-04-15', notes: '' },
+    { id: 5, payrollId: 2, employeeId: 1, employeeName: 'Carlos Manuel Rodriguez Santos', baseSalary: '22500.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '0.00', netPay: '22500.00', paymentMethod: 'transfer', status: 'pending', paymentDate: '', notes: '' },
+    { id: 6, payrollId: 2, employeeId: 2, employeeName: 'Maria Elena Fernandez Lopez', baseSalary: '11000.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '1000.00', netPay: '10000.00', paymentMethod: 'transfer', status: 'pending', paymentDate: '', notes: 'Deduccion prestamo' },
+    { id: 7, payrollId: 2, employeeId: 3, employeeName: 'Jose Antonio Garcia Perez', baseSalary: '9000.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '0.00', netPay: '9000.00', paymentMethod: 'cash', status: 'pending', paymentDate: '', notes: '' },
+    { id: 8, payrollId: 2, employeeId: 4, employeeName: 'Laura Beatriz Martinez Diaz', baseSalary: '10000.00', overtime: '0.00', bonus: '0.00', deductions: '0.00', loanDeduction: '0.00', netPay: '10000.00', paymentMethod: 'transfer', status: 'pending', paymentDate: '', notes: '' }
+  ],
+  tables: [
+    { id: 1, businessId: 1, branchId: 1, name: 'Mesa 1', capacity: 4, status: 'occupied', currentOrderId: 1, orderTotal: '850.00', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 2, businessId: 1, branchId: 1, name: 'Mesa 2', capacity: 2, status: 'free', currentOrderId: undefined, orderTotal: '0.00', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 3, businessId: 1, branchId: 1, name: 'Mesa 3', capacity: 6, status: 'occupied', currentOrderId: 2, orderTotal: '1240.00', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 4, businessId: 1, branchId: 1, name: 'Barra 1', capacity: 2, status: 'reserved', currentOrderId: undefined, orderTotal: '0.00', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 5, businessId: 1, branchId: 1, name: 'Barra 2', capacity: 2, status: 'free', currentOrderId: undefined, orderTotal: '0.00', createdAt: '2026-01-01T00:00:00Z' },
+    { id: 6, businessId: 1, branchId: 1, name: 'Terraza 1', capacity: 8, status: 'free', currentOrderId: undefined, orderTotal: '0.00', createdAt: '2026-01-01T00:00:00Z' }
+  ],
+  tableOrderItems: [
+    { id: 1, tableId: 1, productId: 1, productName: 'Presidente Regular 355ml', quantity: 4, price: '65.00', total: '260.00', notes: '', status: 'served', addedAt: '2026-04-25T19:00:00Z' },
+    { id: 2, tableId: 1, productId: 5, productName: 'Brugal Extra Viejo 750ml', quantity: 1, price: '450.00', total: '450.00', notes: 'Con hielo', status: 'served', addedAt: '2026-04-25T19:05:00Z' },
+    { id: 3, tableId: 1, productId: 3, productName: 'Corona Extra 355ml', quantity: 2, price: '85.00', total: '170.00', notes: '', status: 'pending', addedAt: '2026-04-25T19:30:00Z' },
+    { id: 4, tableId: 3, productId: 8, productName: 'Casillero del Diablo Cabernet', quantity: 1, price: '550.00', total: '550.00', notes: 'Servir frio', status: 'served', addedAt: '2026-04-25T18:30:00Z' },
+    { id: 5, tableId: 3, productId: 13, productName: 'Absolut Vodka 750ml', quantity: 1, price: '700.00', total: '700.00', notes: '', status: 'served', addedAt: '2026-04-25T18:35:00Z' }
+  ],
+  comandas: [
+    { id: 1, number: 'COM-000001', businessId: 1, branchId: 1, tableId: 1, tableName: 'Mesa 1', customerName: 'Grupo Lopez', status: 'preparing', items: [
+      { id: 1, comandaId: 1, productId: 1, productName: 'Presidente Regular 355ml', quantity: 4, price: '65.00', total: '260.00', notes: '', status: 'ready' },
+      { id: 2, comandaId: 1, productId: 5, productName: 'Brugal Extra Viejo 750ml', quantity: 1, price: '450.00', total: '450.00', notes: 'Con hielo', status: 'preparing' },
+      { id: 3, comandaId: 1, productId: 3, productName: 'Corona Extra 355ml', quantity: 2, price: '85.00', total: '170.00', notes: '', status: 'pending' }
+    ], subtotal: '880.00', tax: '0.00', total: '880.00', notes: '', createdAt: '2026-04-25T19:00:00Z', updatedAt: '2026-04-25T19:05:00Z', userName: 'Admin Demo' },
+    { id: 2, number: 'COM-000002', businessId: 1, branchId: 1, tableId: 3, tableName: 'Mesa 3', customerName: 'Pareja Aniversario', status: 'ready', items: [
+      { id: 4, comandaId: 2, productId: 8, productName: 'Casillero del Diablo Cabernet', quantity: 1, price: '550.00', total: '550.00', notes: 'Servir frio', status: 'ready' },
+      { id: 5, comandaId: 2, productId: 13, productName: 'Absolut Vodka 750ml', quantity: 1, price: '700.00', total: '700.00', notes: '', status: 'ready' }
+    ], subtotal: '1250.00', tax: '0.00', total: '1250.00', notes: 'Reservacion 8pm', createdAt: '2026-04-25T18:30:00Z', updatedAt: '2026-04-25T18:45:00Z', userName: 'Admin Demo' },
+    { id: 3, number: 'COM-000003', businessId: 1, branchId: 1, status: 'delivered', items: [
+      { id: 6, comandaId: 3, productId: 1, productName: 'Presidente Regular 355ml', quantity: 6, price: '65.00', total: '390.00', notes: '', status: 'served' }
+    ], subtotal: '390.00', tax: '0.00', total: '390.00', notes: 'Para llevar', createdAt: '2026-04-24T20:00:00Z', updatedAt: '2026-04-24T20:30:00Z', userName: 'Admin Demo' }
+  ],
+  whatsAppSessions: [
+    { id: 1, businessId: 1, phone: '809-555-9999', name: 'Licorera El Puerto', status: 'connected', lastActivity: '2026-04-25T18:00:00Z', createdAt: '2026-01-01T00:00:00Z' }
+  ],
+  whatsAppMessages: [
+    { id: 1, sessionId: 1, phone: '809-555-1001', contactName: 'Juan Perez Garcia', type: 'received', content: 'Hola, quiero hacer un pedido de 6 Presidentes y 2 Brugal para hoy a las 8pm', status: 'read', createdAt: '2026-04-25T14:30:00Z' },
+    { id: 2, sessionId: 1, phone: '809-555-1001', contactName: 'Juan Perez Garcia', type: 'sent', content: 'Buenas tardes Juan, con gusto. Serian RD$990.00. Confirmo la direccion: Calle A #10, Gazcue?', status: 'delivered', createdAt: '2026-04-25T14:35:00Z' },
+    { id: 3, sessionId: 1, phone: '809-555-1002', contactName: 'Maria Lopez Santos', type: 'received', content: 'Buenos dias, me pueden enviar mi estado de cuenta?', status: 'unread', createdAt: '2026-04-25T16:00:00Z' },
+    { id: 4, sessionId: 1, phone: '809-555-1004', contactName: 'Ana Martinez', type: 'received', content: 'Necesito una cotizacion para una fiesta de 50 personas este sabado', status: 'read', createdAt: '2026-04-24T10:00:00Z' },
+    { id: 5, sessionId: 1, phone: '809-555-1004', contactName: 'Ana Martinez', type: 'sent', content: 'Hola Ana, con gusto le preparamos la cotizacion. En breve le envio los detalles.', status: 'delivered', createdAt: '2026-04-24T10:15:00Z' }
+  ],
+  whatsAppTemplates: [
+    { id: 1, businessId: 1, name: 'Balance de Cuenta', content: 'Hola {{nombre}}, su balance actual es de RD$ {{balance}}. Fecha de corte: {{fecha_corte}}. Gracias por preferirnos!', variables: 'nombre,balance,fecha_corte', active: true },
+    { id: 2, businessId: 1, name: 'Pedido Confirmado', content: 'Hola {{nombre}}, su pedido #{{pedido}} ha sido confirmado. Total: RD$ {{total}}. Entrega estimada: {{hora}}. Gracias!', variables: 'nombre,pedido,total,hora', active: true },
+    { id: 3, businessId: 1, name: 'Recordatorio de Pago', content: 'Hola {{nombre}}, le recordamos que su pago de RD$ {{monto}} vence el {{vencimiento}}. Agradecemos su puntualidad.', variables: 'nombre,monto,vencimiento', active: true }
+  ]
 };
 
 function loadDb(): MockDB {
